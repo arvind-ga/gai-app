@@ -1,0 +1,75 @@
+version: '3.12-slim'
+
+services:
+  nginx:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile  # Custom Nginx Dockerfile
+    container_name: proxy
+    #    image: usmslm102/nginx-proxy:latest
+    image: gaicr.azurecr.io/test/nginx
+    ports:
+      - "80:80"     # Expose Nginx on port 80 to the public
+    volumes:
+      - ${WEBAPP_STORAGE_HOME}/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - nextjs    # Ensure frontend and backend are running before Nginx starts
+      - fastapi
+    networks:
+      - aztest_v1_default
+    command: [ "nginx", "-g", "daemon off;" ]
+
+  fastapi:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    image: gaicr.azurecr.io/test/fastapi
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - NEXT_PUBLIC_API_KEY=4bhY9bWCURUV9kNRXaSv2Te9nZSENvFj
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - aztest_v1_default
+
+  nextjs:
+    build:
+      context: ./nextjs
+      dockerfile: Dockerfile
+    volume:
+      - ${WEBAPP_STORAGE_HOME}/nextjs:/app
+      - ${WEBAPP_STORAGE_HOME}/app/node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    image: gaicr.azurecr.io/test/nextjs
+    networks:
+      - aztest_v1_default
+
+  mongodb:
+    image: gaicr.azurecr.io/test/mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=bringthemhome
+      - MONGO_INITDB_ROOT_PASSWORD=CuQGaToMW15h7DND
+    ports:
+      - "27017:27017" # for testing purposes you can expose the MongoDB port
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - aztest_v1_default
+
+  redis:
+    image: gaicr.azurecr.io/test/redis
+    volumes:
+      - redis_data:/data
+    networks:
+      - aztest_v1_default
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  aztest_v1_default:
+    driver: bridge

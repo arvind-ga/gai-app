@@ -1,0 +1,72 @@
+version: '3.12-slim'
+
+services:
+  fastapi:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - NEXT_PUBLIC_API_KEY=${static_bearer_secret_key}
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - aztest_v1_default
+
+  nextjs:
+    build:
+      context: ./nextjs
+      dockerfile: Dockerfile
+    volumes:
+      - ./nextjs:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - aztest_v1_default
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=bringthemhome
+      - MONGO_INITDB_ROOT_PASSWORD=kww1NR5QgERTAHvx
+    ports:
+      - "10255:10255" # for testing purposes you can expose the MongoDB port
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - aztest_v1_default
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    networks:
+      - aztest_v1_default
+
+  nginx:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile  # Custom Nginx Dockerfile
+    container_name: aztest_v1-nginx
+    #    image: usmslm102/nginx-proxy:latest
+    ports:
+      - "80:80"     # Expose Nginx on port 80 to the public
+    depends_on:
+      - nextjs    # Ensure frontend and backend are running before Nginx starts
+      - fastapi
+    networks:
+      - aztest_v1_default
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+      - ./html:/usr/share/nginx/html
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  aztest_v1_default:
+    driver: bridge
