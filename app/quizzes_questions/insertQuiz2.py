@@ -2,16 +2,10 @@ import asyncio
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# from dotenv import load_dotenv
-# load_dotenv()  # loading environment variables
-#
-# MONGODB_USER = os.getenv("mongodb_username")
-# MONGODB_PASS = os.getenv("mongodb_password")
-# MONGODB_SERVER = os.getenv("mongodb_server")
-# MONGODB_PORT = os.getenv("mongodb_port")
-# MONGODB_CONNECTION_STRING1 = f"mongodb://{MONGODB_USER}:{MONGODB_PASS}@{MONGODB_SERVER}:{MONGODB_PORT}/fastapi_db?authSource=admin&authMechanism=SCRAM-SHA-256"
-# print("MONGODB_CONNECTION_STRING::", MONGODB_CONNECTION_STRING1)
-MONGODB_CONNECTION_STRING = f"mongodb://gakudoai-app-db:U6m0miKzJ7sCCHQkZCymYOYAKo63Imkz0h91DXPNh4vA4islkNRPtDXHjB1T6D0aT1XnXfNF6jXDACDbyj0l2Q==@gakudoai-app-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@gakudoai-app-db@"
+from dotenv import load_dotenv
+load_dotenv()  # loading environment variables
+
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
 
 # Asynchronous MongoDB connection
 async_connection_string = f'{MONGODB_CONNECTION_STRING}'  # This can be the same as the synchronous connection string

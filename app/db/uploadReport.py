@@ -1,7 +1,12 @@
+import os
 from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
+load_dotenv()  # loading environment variables
 
-connection_string = "DefaultEndpointsProtocol=https;AccountName=gakudoaiappgroup649;AccountKey=ZmmYyp1QQP92Y+XDcqeKgWAp5RhmNXhXbA08bGWywWtrm4SuUymmcgIn8QntRYa7E8LP3i11Z1RD+AStRgSeTA==;EndpointSuffix=core.windows.net"
-container_name = "gai-report-blob"
+
+connection_string = os.getenv("connection_string")
+container_name = os.getenv("container_name")
+
 # Initialize the BlobServiceClient
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_client = blob_service_client.get_container_client(container_name)

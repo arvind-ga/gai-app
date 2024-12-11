@@ -1,21 +1,28 @@
 from azure.storage.blob import generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta, timezone
 from azure.storage.blob import BlobServiceClient
-from fastapi.encoders import jsonable_encoder
+import os
+from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
+load_dotenv()  # loading environment variables
 
-connection_string = "DefaultEndpointsProtocol=https;AccountName=gakudoaiappgroup649;AccountKey=ZmmYyp1QQP92Y+XDcqeKgWAp5RhmNXhXbA08bGWywWtrm4SuUymmcgIn8QntRYa7E8LP3i11Z1RD+AStRgSeTA==;EndpointSuffix=core.windows.net"
-container_name = "gai-report-blob"
+
+connection_string = os.getenv("connection_string")
+container_name = os.getenv("container_name")
+account_name = os.getenv("account_name")
+account_key = os.getenv("account_key")
+
 # Initialize the BlobServiceClient
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_client = blob_service_client.get_container_client(container_name)
 
 # Function to generate a SAS URL for a given file
-def generate_report_download_url(account_name= "gakudoaiappgroup649", blob_name="arvind1.pdf", container_name=container_name):
+def generate_report_download_url(account_name= account_name, blob_name="arvind1.pdf", container_name=container_name, account_key=account_key):
     sas_token = generate_blob_sas(
-        account_name="gakudoaiappgroup649",
+        account_name="account_name",
         container_name=container_name,
         blob_name=blob_name,
-        account_key="ZmmYyp1QQP92Y+XDcqeKgWAp5RhmNXhXbA08bGWywWtrm4SuUymmcgIn8QntRYa7E8LP3i11Z1RD+AStRgSeTA==",
+        account_key = account_key,
         permission=BlobSasPermissions(read=True),
         expiry=datetime.now(timezone.utc) + timedelta(hours=24)
     )
