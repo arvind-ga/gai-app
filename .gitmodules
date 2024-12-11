@@ -1,0 +1,3 @@
+[submodule "gai-report"]
+	path = gai-report
+	url = git@github.com:arvind-ga/gai-report.git

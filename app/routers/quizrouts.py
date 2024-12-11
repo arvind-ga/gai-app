@@ -14,8 +14,11 @@ from app.components.logger import logger
 from app.components.message_dispatcher.mail import send_email_and_save
 from app.db.mongoClient import async_database
 from app.db.downloadReport import generate_report_download_url, check_blob_exists
+from app.db.uploadReport import upload_report
 from app.routers.users import user_exists
 from fastapi.encoders import jsonable_encoder
+from gai_report.main_eng_db_v1 import generate_report
+
 
 
 
@@ -44,6 +47,18 @@ async def save_quiz_response(response: QuizResponse):
         print("Received response payload:", response.dict())
         # Save user response in the database
         result = await quiz_response_collection.insert_one(response.dict())
+        return {"message": "Responses saved successfully", "id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/report-generate/{user_id}")
+async def save_quiz_response(user_id: str):
+    try:
+        # Generate Report
+        user_detail = user_collection.find_one({"id": user_id})
+        pdf_report_url = await generate_report(user_detail)
+        # report_url = os.path.join("gai_report", pdf_report_url)
+        result = await upload_report(report_url)
         return {"message": "Responses saved successfully", "id": str(result.inserted_id)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

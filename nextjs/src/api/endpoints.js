@@ -188,6 +188,17 @@ export const submitQuizResponse = async (responseData) => {
 };
 
 
+// Generate Report
+export const GenerateReport = async (user_id) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Please complete all the quiz:", error);
+        throw error;
+    }
+};
+
 export const downloadReport = async (id) => {
     try {
         // Fetch the download link from the backend
