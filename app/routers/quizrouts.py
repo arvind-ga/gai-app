@@ -1,6 +1,6 @@
+import os
 import secrets
 from datetime import timedelta
-
 from bson import ObjectId
 from fastapi import status, Request, HTTPException, APIRouter
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -18,10 +18,6 @@ from app.db.uploadReport import upload_report
 from app.routers.users import user_exists
 from fastapi.encoders import jsonable_encoder
 from gai_report.main_eng_db_v1 import generate_report
-
-
-
-
 
 router = APIRouter()  # router instance
 user_collection = async_database.users  # Get the collection from the database
@@ -51,17 +47,51 @@ async def save_quiz_response(response: QuizResponse):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/report-generate/{user_id}")
-async def save_quiz_response(user_id: str):
+@router.post("/generate-report/{user_id}")
+async def generate_student_report(user_id: str):
     try:
-        # Generate Report
-        user_detail = user_collection.find_one({"id": user_id})
-        pdf_report_url = await generate_report(user_detail)
+        # Fetch user from the database
+        logger.info(f"Entered in generate report function")
+        user = await user_collection.find_one({"username": user_id})
+        if not user:
+            logger.error(f"User with id {user_id} not found")
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Prepare user details
+        logger.info(f"Fetched user in generate-report function for {user_id}, {user}")
+        user_detail_dict = {
+            "username": str(user.get("username")),
+            "email": str(user.get("email")),
+            "full_name": str(user.get("full_name")),
+            "standard": str(user.get("standard")),
+            "school_name": str(user.get("school_name")),
+        }
+        logger.info(f"Report being generated with details: {user_detail_dict}")
+
+        # Generate the report
+        pdf_report_url = await generate_report(user_detail_dict)
+        if not pdf_report_url:
+            logger.error("Failed to generate PDF report URL")
+            raise HTTPException(status_code=500, detail="Report generation failed")
+
+        # Construct the report URL
         # report_url = os.path.join("gai_report", pdf_report_url)
-        result = await upload_report(report_url)
-        return {"message": "Responses saved successfully", "id": str(result.inserted_id)}
+        logger.info(f"Report download link generated successfully for user: {user_detail_dict}")
+
+        # Upload the report
+        result = await upload_report(pdf_report_url)
+        if not result:
+            logger.error("Failed to upload report")
+            raise HTTPException(status_code=500, detail="Report upload failed")
+
+        return {"message": "Responses saved successfully", "id": str(user_id)}
+
+    except HTTPException as http_exc:
+        raise http_exc  # Propagate HTTP exceptions as-is
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Unexpected error occurred while processing the request")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
 
 @router.get("/report-download-link/{user_id}")
 async def get_report_download_link(user_id: str):

@@ -26,3 +26,4 @@ scikit-learn~=1.5.2
 joblib~=1.4.2
 matplotlib~=3.9.3
 reportlab~=4.2.5
+xml-python~=0.4.3

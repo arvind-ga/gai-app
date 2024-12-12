@@ -192,6 +192,7 @@ export const submitQuizResponse = async (responseData) => {
 export const GenerateReport = async (user_id) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`);
+        console.log("Please is being generated js:", response.data);
         return response.data;
     } catch (error) {
         console.error("Please complete all the quiz:", error);

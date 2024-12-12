@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Container, Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useAuth } from '@/api/auth/auth-context';
 import { GenerateReport } from '@/api/endpoints';
+import { downloadReport} from "@/api/endpoints";
 
 export default function QuizLinks() {
     const router = useRouter(); // Initialize the router object
     const [reportGenerating, setReportGenerating] = useState(false);
     const [reportGenerated, setReportGenerated] = useState(false);
+    const { userProfile, accessToken } = useAuth();
 
     const navigateTo = (quizId) => {
         if (quizId) {
@@ -18,14 +21,16 @@ export default function QuizLinks() {
 
     const handleGenerateReport = async () => {
         setReportGenerating(true);
-        const { userProfile } = useAuth();
         try {
-            console.log('Generating Student Report', response);
-            const response = await GenerateReport(editedUser, accessToken);
+            console.log('Generating Student Report');
+            // const response = await GenerateReport(userProfile, accessToken);
+            const response = await GenerateReport(userProfile.username);
             console.log('Report generated successfully:', response);
             setEditMode(false); // Exit edit mode on success
         } catch (error) {
             console.error('Error while generating report:', error);
+            setReportGenerating(false);
+            // Optionally show a Snackbar with error information
         }
 
         // Simulate report generation with a delay
@@ -87,6 +92,7 @@ export default function QuizLinks() {
                     variant="contained"
                     color="secondary"
                     onClick={handleGenerateReport}
+                    disabled={reportGenerating}
                     sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}
                 >
                     Generate Report

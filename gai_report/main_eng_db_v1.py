@@ -7,18 +7,23 @@ from gai_report.eng_fn.eng_report_generate_fn import generate_pdf_report
 from gai_report.common_fn.data_manipulation_db import get_dfs
 from gai_report.model_code.model_training.model_inference import clf, convert_resp_to_int, label_lst, resp_val_mapping
 from gai_report.common_fn.gpt4_resp import *
+
+from app.components.logger import logger
 ########################################
 ######### Report Generation ############
 interest_data = {"Science": 40, "Arts": 20, "Sports": 15, "Technology": 25}
 ########################
-img_path = "images/gakudoai_logo.jpeg"
-gakudoai_logo_path = "images/gakudoai_logo.jpeg"
+img_path = "gai_report/images/rocket-in-space.webp"
+gakudoai_logo_path = "gai_report/images/gakudoai_logo.jpeg"
 
 async def generate_report(user_detail):
+    logger.info(f"Entered generate_report function {user_detail}")
     user_email = user_detail.get("email") #"check1234@gmail.com"
+    logger.info(f"user email fetched successfully")
     check1 = await get_dfs(user_email)
+    logger.info(f"Everything fine till, check1 = await get_dfs{check1}")
     print("check1:", check1)
-    user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = check1 #await db_main(user_email)
+    dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = check1 #await db_main(user_email)
     print("user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3:::", user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3)
     ################### Student's vars ################
     student_details = {}
@@ -27,10 +32,8 @@ async def generate_report(user_detail):
     student_details["student_class"] = user_detail["standard"]
     student_details["student_school"] = user_detail["school_name"]
     student_details["student_email"] = user_detail["email"]
-    print(
-        "Student DETAILS::", student_name, student_class, student_school, student_email
-    )
-
+    print("Student DETAILS::", student_details)
+    logger.info(f"Student info created successfully {student_details}")
     ################# Student Personality from Model ##############
     # df1_model_params_list1 = [i[4:] for i in df1_model_params_list]
     # df1m = dfr1[df1_model_params_list1]

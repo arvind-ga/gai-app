@@ -8,6 +8,8 @@ from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Image
 from datetime import datetime
+from xml.sax.saxutils import escape
+from app.components.logger import logger
 
 
 # from eng_fn.parameter_mapping import *
@@ -391,8 +393,12 @@ def generate_pdf_report(
     # for i in career_option_list:
     #     content.append(Paragraph("{}".format(i), styles["Heading5"]))
     content.append(Paragraph("Stream  Recommendation:", styles["Heading4"]))
+    logger.info(f"career_option_list: {stream_option_list}")
     content.append(Paragraph("{}".format(stream_option_list), styles["Heading5"]))
+    ##################################
     content.append(Paragraph("Career Option Recommendation:", styles["Heading4"]))
+    logger.info(f"career_option_list: {career_option_list}")
+    career_option_list = escape(career_option_list) 
     content.append(Paragraph("{}".format(career_option_list), styles["Heading5"]))
     content.append(Spacer(1, 12))
     # content.append(Paragraph("{}".format(career_option_list), styles["Heading5"]))

@@ -13,8 +13,7 @@ load_dotenv()  # loading environment variables
 
 MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
 # Asynchronous MongoDB connection
-async_connection_string = f'{MONGODB_CONNECTION_STRING}'  # This can be the same as the synchronous connection string
-async_mdb_client = AsyncIOMotorClient(async_connection_string)  # setting mongodb client for asynchronous operations
+async_mdb_client = AsyncIOMotorClient(MONGODB_CONNECTION_STRING)  # setting mongodb client for asynchronous operations
 async_database = async_mdb_client['fastapi_db']  # database name in mongodb for asynchronous operations
 
 # Function to validate connection
@@ -23,6 +22,7 @@ async def validate_mongodb_connection():
         # Attempt to count documents in a specific collection, e.g., 'test_collection'
         count = await async_database['test_collection'].count_documents({})
         print(f"Connection Successful! Found {count} documents in 'test_collection'.")
+        logger.info(f"Connection Successful! Found {count} documents in 'test_collection'.")
     except Exception as e:
         logger.info(f"Connection to MongoDB failed: {e}")
 

@@ -98,9 +98,9 @@ async def get_dfs(user_email):
             dict2 = q1_resp2.get("responses")
             dict3 = q1_resp3.get("responses")
             dict4 = q1_resp4.get("responses")
-            user_detail = {}
-            user_detail["email_add"] = user_email
-            user_detail["username"] = q1_resp1.get("username")
+            # user_detail = {}
+            # user_detail["email_add"] = user_email
+            # user_detail["username"] = q1_resp1.get("username")
             dfr1 = pd.DataFrame(dict1.items(), columns=["question_id", "response"])
             dfr2 = pd.DataFrame(dict2.items(), columns=["question_id", "response"])
             dfr3 = pd.DataFrame(dict3.items(), columns=["question_id", "response"])
@@ -109,14 +109,14 @@ async def get_dfs(user_email):
             dfa2.columns = ["question_id", "answer", "segment"]
             dfa3 = pd.DataFrame(quiz3a) #.items(), columns=["question", "answer"])
             dfa3.columns = ["question_id", "answer", "segment"]
-            print("user_detail", user_detail)
+            # print("user_detail", user_detail)
             # print("dfr1", dfr1)
             # print("dfr2", dfr2)
             # print("dfr3", dfr3)
             # print("dfr4", dfr4)
             print("dfa2 columns:", dfa2.columns)
             print("dfa3 columns", dfa3.columns)
-            return user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3
+            return dfr1, dfr2, dfr3, dfr4, dfa2, dfa3
             # print(dff.shape)
             # print(dff.tail())
             # print("dict1", type(dict1))
