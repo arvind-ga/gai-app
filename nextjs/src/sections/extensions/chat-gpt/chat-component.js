@@ -161,7 +161,7 @@ const ChatComponent = () => {
                             {chats[activeTab]?.history.map((entry, index) => (
                                 <ListItem key={index}>
                                     <ListItemText primary={`You: ${entry.question}`}
-                                                  secondary={`AI Assistant: ${entry.answer}`}/>
+                                                  secondary={`GakudoGPT: ${entry.answer}`}/>
                                 </ListItem>
                             ))}
                             {isTyping && <CircularProgress sx={{alignSelf: 'center', m: 1}}/>}
