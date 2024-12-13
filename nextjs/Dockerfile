@@ -4,8 +4,8 @@ FROM node:latest
 WORKDIR /nextjs
 
 ## Set environment variables
-ENV API_BASE_URL="http://localhost:8000/api/v1"
-ENV NEXT_PUBLIC_API_KEY="bringthemhome"
+# ENV API_BASE_URL="http://localhost:8000/api/v1"
+# ENV NEXT_PUBLIC_API_KEY="bringthemhome"
 
 RUN npm cache clean --force
 COPY package*.json ./

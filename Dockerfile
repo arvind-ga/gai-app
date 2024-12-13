@@ -3,8 +3,8 @@ FROM python:3.11-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1  
 ENV PYTHONUNBUFFERED=1         
-ENV TZ=UTC                    
-ENV ALLOWED_ORIGINS="http://4.240.79.122:3000,http://localhost:3000"
+# ENV TZ=UTC                    
+# ENV ALLOWED_ORIGINS="http://4.240.79.122:3000,http://localhost:3000"
 
 # Set the working directory in the container
 WORKDIR /app
@@ -12,9 +12,10 @@ WORKDIR /app
 # Install dependencies
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone
+    pip install --no-cache-dir -r requirements.txt 
+    # && \
+    # ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    # echo $TZ > /etc/timezone
 
 # Copy only necessary application files
 COPY . /app/

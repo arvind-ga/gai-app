@@ -65,6 +65,7 @@ export default function RegistrationModal({open, handleClose}) {
             // Consider regenerating captcha or handling this scenario appropriately
             return;
         }*/}
+        console.log("userData:", userData)
 
         registrationMutation.mutate(userData);
     };

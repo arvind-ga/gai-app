@@ -28,6 +28,7 @@ async def create_user(user_registration: UserRegistration):
 
     try:
         # Check if the user with the given email or username already exists.
+        logger.info("Register request received with data: %s", user_registration)
         if await user_exists(email=user_registration.email, username=user_registration.username):
             detail_msg = "The email or username is already in use."
             logger.warning(
@@ -44,6 +45,7 @@ async def create_user(user_registration: UserRegistration):
         # Prepare the user document for insertion into the database.
         # This includes removing the plaintext password and adding hashed_password, role, and disabled status.
         user_dict = user_registration.dict()
+        logger.info("Register request received with data dict: %s", user_dict)
         user_dict["hashed_password"] = hashed_password
         del user_dict["password"]  # Remove plaintext password from the document
         user_dict["role"] = Role.user.value  # Explicitly set the user's role to 'user'
