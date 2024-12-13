@@ -154,74 +154,38 @@ const Dashboard = () => {
                 Welcome back, <Typography variant="h6" component="span"
                                           color={"primary"}> {userProfile?.full_name || 'User'}!</Typography>
             </Typography>
-            <Grid container spacing={3} sx={{mt: 2}}>
-                {stats.map((stat, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
-                        <Paper
-                            sx={{p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%'}}>
-                            <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                                {stat.label}
-                            </Typography>
-                            <Typography component="p" variant="h4">
-                                {index === 0 && (
-                                        <Box sx={{p: 1}}>
-                                        <ListItemButton
-                                            onClick={() => {
-                                                router.push('/user-profile');
-                                            }}
-                                            sx={{
-                                                borderRadius: 1,
-                                                px: 1,
-                                                py: 0.5,
-                                            }}
-                                        >
-                                            <ListItemIcon>
-                                                <AccountCircle fontSize="large" color="primary" />
-                                            </ListItemIcon>
-                                        </ListItemButton>
-                                    </Box>
-                                    )}
-                                {index === 1 && (
-                                        <Box sx={{ p: 1 }}>
-                                            <ListItemButton
-                                                onClick={() => {
-                                                    router.push('/quiz-links'); // Navigate to the QuizLinks page
-                                                }}
-                                                sx={{
-                                                    borderRadius: 1,
-                                                    px: 1,
-                                                    py: 0.5,
-                                                }}
-                                            >
-                                                <ListItemIcon>
-                                                    <Assessment fontSize="large" color="primary" /> {/* Exam Report Icon */}
-                                                </ListItemIcon>
-                                            </ListItemButton>
-                                        </Box>
-                                    )}
-                                {index === 2 && (
-                                    <Box sx={{ p: 1 }}>
-                                        <ListItemButton
-                                            onClick={() => downloadReport(userProfile?.username)} // Correctly passing the function reference
-                                            sx={{
-                                                borderRadius: 1,
-                                                px: 1,
-                                                py: 0.5,
-                                            }}
-                                        >
-                                            <ListItemIcon>
-                                                <CloudDownload fontSize="large" color="primary" /> {/* Exam Report Icon */}
-                                            </ListItemIcon>
-                                        </ListItemButton>
-                                    </Box>
-                                )} {/* Download Icon */}
-                                {/*{index === 3 && <PsychologyAltIcon fontSize="large" color="primary" />}*/} {/* Download Icon */}
-                            </Typography>
-                        </Paper>
-                    </Grid>
-                ))}
+            <Grid container spacing={3} sx={{ mt: 2 }}>
+            {stats.map((stat, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                    <ListItemButton
+                        onClick={() => {
+                            if (index === 0) router.push('/user-profile');
+                            else if (index === 1) router.push('/quiz-links');
+                            else if (index === 2) downloadReport(userProfile?.username);
+                        }}
+                        sx={{
+                            p: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            height: '100%',
+                            borderRadius: 2,
+                        }}
+                    >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                            {stat.label}
+                        </Typography>
+                        <Typography component="p" variant="h4">
+                            {index === 0 && <AccountCircle fontSize="large" color="primary" />}
+                            {index === 1 && <Assessment fontSize="large" color="primary" />}
+                            {index === 2 && <CloudDownload fontSize="large" color="primary" />}
+                        </Typography>
+                    </ListItemButton>
+                </Grid>
+            ))}
+        </Grid>
 
-</Grid>
+        
             {/* Line Chart Section */}
             <Grid container sx={{ mt: 6 }}>
                 <Typography component="h1" variant="h4" gutterBottom>
@@ -288,6 +252,6 @@ const Dashboard = () => {
             </Box>
         </>
     );
-};
+}; 
 
 export default useAuthenticatedRoute(Dashboard);
