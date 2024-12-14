@@ -13,6 +13,9 @@ from app.routers.users import user_exists
 from azure.communication.email import EmailClient
 from azure.core.exceptions import HttpResponseError
 
+from dotenv import load_dotenv
+load_dotenv() 
+
 
 router = APIRouter()  # router instance
 user_collection = async_database.users  # Get the collection from the database
@@ -179,6 +182,7 @@ async def forgot_password(email: str, request: Request):
     """
 
     # Look for the user in the database using the provided email address.
+    logger.info(f"Entered in forgot-password function router for email: {email}")
     user = await user_collection.find_one({"email": email})
     redis_client = request.app.state.redis
 
@@ -194,10 +198,11 @@ async def forgot_password(email: str, request: Request):
     await redis_client.setex(f"reset_token:{reset_token}", timedelta(hours=1), value=str(user["_id"]))
 
     # Email the user with the reset token
-    reset_link = f"http://4.240.79.122:3000/reset-password/{reset_token}"
+    host_ip = os.getenv("host_server_ip")
+    connection_string = os.getenv("connection_string")
+    reset_link = f"http://{host_ip}:3000/reset-password/{reset_token}"
     print("Reset password token has been generated!")
     try:
-        connection_string = "endpoint=https://gai-az-comm-srv.india.communication.azure.com/;accesskey=638iEVNd9zVhPHv25oThQy3JaCXSvqZeyngGASnrS5ZmsUioF2GhJQQJ99ALACULyCpBn162AAAAAZCSgAGp"
         client = EmailClient.from_connection_string(connection_string)
 
         message = {
@@ -218,7 +223,7 @@ async def forgot_password(email: str, request: Request):
         }
 
 
-        poller = await client.begin_send(message)
+        poller = client.begin_send(message)
         result = poller.result()
         if result:
             print(f"Email sent successfully! Message ID: {result.message_id}")
