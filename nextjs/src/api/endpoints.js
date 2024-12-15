@@ -203,10 +203,16 @@ export const submitQuizResponse = async (responseData) => {
 
 
 // Generate Report
-export const GenerateReport = async (user_id) => {
+export const GenerateReport = async (user_id, accessToken) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`, {
-            method: 'POST',
+        console.log("User ID:", user_id);
+        console.log("Access token:", accessToken);
+
+        if (!user_id) throw new Error("user_id is required");
+        if (!accessToken) throw new Error("Access token is required");
+        // const encodedUserId = encodeURIComponent(user_id);
+
+        const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`, {}, {
             headers: {
                 'accept': 'application/json',
                 'access-key': accessToken,

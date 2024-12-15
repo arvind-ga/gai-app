@@ -8,6 +8,7 @@ from app.components.logger import logger
 from uuid import uuid4
 
 chat_collection = async_database.chatgpt  # Get the collection from the database
+student_score_collection = async_database.student_score 
 
 load_dotenv()
 # API_KEY = os.getenv("open_ai_secret_key")
@@ -19,12 +20,15 @@ logger = logging.getLogger(__name__)
 
 
 def ask_chatgpt_with_context(gpt_question: str, username: str, model: str = "gpt-4"):
+    student_score = student_score_collection.find_one({"id": username})
     logger.info(f"Inside ask_chatgpt_with_context::: {gpt_question} {username} {model}")
     content = """
       # YOUR ROLE #
-      You are an expert career counsellor. Your responsibility is to understand student's query 
-      for career or academic help for K12 student in indian context. Below is the query from the 
-      student {gpt_question}
+      You are an expert career counsellor.
+      Your responsibility is to understand student's query for career or academic help for K12 student in indian context.
+      Analyse and understand score of student in variaous fields from the dictionary {student_score} and answer student query, don't mention or quote numbers from the dictionary directly.
+      # Student Scores #
+      Below is the query from the student {gpt_question}
       """.format(gpt_question=gpt_question)
 
     ###################

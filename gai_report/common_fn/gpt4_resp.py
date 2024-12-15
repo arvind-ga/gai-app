@@ -13,8 +13,6 @@ load_dotenv()
 ### azure configuration
 API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-print("API_KEY:", API_KEY)
-print("ENDPOINT:", ENDPOINT)
 
 ###################
 # pers_prompt = """

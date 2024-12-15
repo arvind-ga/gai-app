@@ -48,10 +48,12 @@ async def save_quiz_response(response: QuizResponse):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/generate-report/{user_id}", dependencies=[Depends(check_permissions)])
-async def generate_student_report(user_id: str):
+async def generate_student_report(user_id: str, request: Request):
     try:
         # Fetch user from the database
         logger.info(f"Entered in generate report function")
+        logger.info(f"Received request for user_id: {user_id}")
+        logger.info(f"Headers: {request.headers}")
         user = await user_collection.find_one({"username": user_id})
         if not user:
             logger.error(f"User with id {user_id} not found")

@@ -24,7 +24,7 @@ export default function QuizLinks() {
         try {
             console.log('Generating Student Report');
             // const response = await GenerateReport(userProfile, accessToken);
-            const response = await GenerateReport(userProfile.username, accessToken);
+            const response = await GenerateReport(userProfile?.username, accessToken);
             console.log('Report generated successfully:', response);
             setEditMode(false); // Exit edit mode on success
         } catch (error) {
