@@ -11,12 +11,10 @@ router = APIRouter()  # loading the FastAPI app
 chat_collection = async_database.chatgpt  # Get the collection from the database
 
 @router.get("/chat/", dependencies=[Depends(check_permissions)])
-async def chat_with_gpt(question: str, model: ChatGptModelEnum, username: str):
+async def chat_with_gpt(question: str, username: str, model: str ):
+    logger.info(f"Inside chta::: {question} {username} {model}")
     """
     Chat with ChatGPT
     """
-    answer = ask_chatgpt_with_context(question, model)
-    chat_dict = {"username": username, "model": model, "query": question, "model_response": answer}
-    logger.info(f"Returning query response {chat_dict}")
-    new_chat = await chat_collection.insert_one(chat_dict)
+    answer = ask_chatgpt_with_context(question, username, model)
     return JSONResponse(content={"message": answer})

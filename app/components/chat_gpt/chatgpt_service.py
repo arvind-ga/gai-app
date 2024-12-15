@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def ask_chatgpt_with_context(gpt_question: str, username: str, model: str = "gpt-4"):
+    logger.info(f"Inside ask_chatgpt_with_context::: {gpt_question} {username} {model}")
     content = """
       # YOUR ROLE #
       You are an expert career counsellor. Your responsibility is to understand student's query 
@@ -61,7 +62,7 @@ def ask_chatgpt_with_context(gpt_question: str, username: str, model: str = "gpt
             raise ValueError("Unexpected API response format")
         processed_response = ''.join(choice['message']['content'] for choice in data['choices'] if
                        'message' in choice and 'content' in choice['message'])
-        chat_dict = {"id": f"{username}_{uuid4()}", "model": model, "payload": payload, "model_response": processed_response}
+        chat_dict = {"id": f"{username}_{uuid4()}", "username": username, "model": model, "payload": payload, "model_response": processed_response}
         logger.info(f"Returning query response in chatgpt_service {chat_dict}")
         chat_collection.insert_one(chat_dict)
         return processed_response
