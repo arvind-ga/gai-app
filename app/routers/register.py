@@ -72,51 +72,6 @@ async def create_user(user_registration: UserRegistration):
         raise HTTPException(status_code=500, detail="An error occurred while creating the user.")
 
 
-# @router.post("/users/forgot-password/")
-# async def forgot_password(email: str, request: Request):
-#     """
-#        Initiates the password reset process for a user identified by their email.
-
-#        This endpoint will:
-#        - Verify if a user with the provided email exists in the database.
-#        - Generate a secure, random token to be used as a password reset token.
-#        - Store this token in Redis with an expiration time, linking it to the user's ID.
-#        - Email the user with a link containing the password reset token.
-
-#        Args:
-#        - email (str): The email address of the user requesting a password reset.
-#        - request (Request): The request object, used to access app state like the Redis client.
-
-#        Returns:
-#        - A message indicating that a password reset link has been sent if a user with the provided email exists.
-#     """
-
-#     # Look for the user in the database using the provided email address.
-#     user = await user_collection.find_one({"email": email})
-#     redis_client = request.app.state.redis
-
-#     # If no user is found with the provided email, return a 404 error.
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User with this email does not exist.")
-
-#     # Generate a secure, random token for the password reset
-#     reset_token = secrets.token_urlsafe(64)
-#     # reset_token_expires = int((datetime.utcnow() + timedelta(hours=1)).timestamp())
-
-#     # Use Redis to store the token with an expiration time
-#     await redis_client.setex(f"reset_token:{reset_token}", timedelta(hours=1), value=str(user["_id"]))
-
-#     # Email the user with the reset token
-#     reset_link = f"http://localhost:3000/reset-password/{reset_token}"
-#     print("Reset password token has been generated!")
-#     await send_email_and_save(
-#         subject="Password Reset Request",
-#         body=f"Please click on the link to reset your password: {reset_link}, the URL is valid for one hour.",
-#         to_emails=[email],
-#         files=[]
-#     )
-#     return {"message": "If an account with this email was found, a password reset link has been sent."}
-
 
 @router.post("/users/reset-password/")
 async def reset_password(token: str, new_password: str, request: Request):
@@ -163,7 +118,7 @@ async def reset_password(token: str, new_password: str, request: Request):
 ##################
 #################
 @router.post("/users/forgot-password/")
-async def forgot_password(email: str, request: Request):
+async def forgot_password(email: str): #, request: Request):
     """
        Initiates the password reset process for a user identified by their email.
 
@@ -184,6 +139,7 @@ async def forgot_password(email: str, request: Request):
     # Look for the user in the database using the provided email address.
     logger.info(f"Entered in forgot-password function router for email: {email}")
     user = await user_collection.find_one({"email": email})
+    request = Request()
     redis_client = request.app.state.redis
 
     # If no user is found with the provided email, return a 404 error.
@@ -199,11 +155,11 @@ async def forgot_password(email: str, request: Request):
 
     # Email the user with the reset token
     host_ip = os.getenv("host_server_ip")
-    connection_string = os.getenv("connection_string")
+    az_comm_connection_string = os.getenv("AZURE_COMM_STRING")
     reset_link = f"http://{host_ip}:3000/reset-password/{reset_token}"
     print("Reset password token has been generated!")
     try:
-        client = EmailClient.from_connection_string(connection_string)
+        client = EmailClient.from_connection_string(az_comm_connection_string)
 
         message = {
             "senderAddress": "DoNotReply@82c05fc9-8a5d-48a5-a90b-cf40e56d015d.azurecomm.net",

@@ -8,7 +8,7 @@ from app.components.logger import logger
 load_dotenv()  # loading environment variables
 
 
-connection_string = os.getenv("connection_string")
+connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 container_name = os.getenv("container_name")
 account_name = os.getenv("account_name")
 account_key = os.getenv("account_key")

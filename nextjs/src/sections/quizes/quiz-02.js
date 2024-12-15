@@ -45,7 +45,7 @@ const QuizPage = ({ quiz_id }) => {
         data: quizData,
         isLoading: isQuizLoading,
         isError: isQuizError,
-    } = useQuery(['quiz', quiz_id], () => fetchQuiz(quiz_id), {
+    } = useQuery(['quiz', quiz_id], () => fetchQuiz(quiz_id, accessToken), {
         enabled: !!quiz_id,
         onSuccess: (data) => setQuiz(data),
     });
@@ -67,7 +67,7 @@ const QuizPage = ({ quiz_id }) => {
         };
 
         try {
-            const result = await submitQuizResponse(submissionData);
+            const result = await submitQuizResponse(submissionData, accessToken);
             setSubmissionMessage('Quiz submitted successfully!');
             console.log('Submission successful:', result);
         } catch (error) {

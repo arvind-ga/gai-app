@@ -3,9 +3,14 @@ import os
 import requests
 import httpx
 from dotenv import load_dotenv
+from app.db.mongoClient import async_database
+from app.components.logger import logger
+from uuid import uuid4
+
+chat_collection = async_database.chatgpt  # Get the collection from the database
 
 load_dotenv()
-API_KEY = os.getenv("open_ai_secret_key")
+# API_KEY = os.getenv("open_ai_secret_key")
 API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 
@@ -13,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def ask_chatgpt_with_context(gpt_question: str, model: str = "gpt-4"):
+def ask_chatgpt_with_context(gpt_question: str, username: str, model: str = "gpt-4"):
     content = """
       # YOUR ROLE #
       You are an expert career counsellor. Your responsibility is to understand student's query 
@@ -52,8 +57,14 @@ def ask_chatgpt_with_context(gpt_question: str, model: str = "gpt-4"):
         response = requests.post(ENDPOINT, headers=headers, json=payload)
         response.raise_for_status()
         data = response.json()
-        return ''.join(choice['message']['content'] for choice in data['choices'] if
+        if 'choices' not in data:
+            raise ValueError("Unexpected API response format")
+        processed_response = ''.join(choice['message']['content'] for choice in data['choices'] if
                        'message' in choice and 'content' in choice['message'])
+        chat_dict = {"id": f"{username}_{uuid4()}", "model": model, "payload": payload, "model_response": processed_response}
+        logger.info(f"Returning query response in chatgpt_service {chat_dict}")
+        chat_collection.insert_one(chat_dict)
+        return processed_response
     except requests.RequestException as e:
         raise SystemExit(f"Failed to make the request. Error: {e}")
 

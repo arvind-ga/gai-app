@@ -63,10 +63,9 @@ app = CustomFastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 config = Config(".env")
 
 # Configure CORS settings
-origins = [
-    "*",  # Allows all origins
-    # "http://localhost:3000",  # Allows only the specified origin
-]
+origins = ["*"]
+# ["http://localhost:3000", "http://4.240.79.122:3000"] # Allows only the specified origin
+
 
 # Add CORS middleware to the application to handle Cross-Origin Resource Sharing (CORS),
 # allowing front-end applications from different origins to interact with the API safely.
@@ -76,7 +75,7 @@ app.add_middleware(
     # allow_origins: Specifies which origins are allowed to make requests to the API.
     # This is a security measure to prevent unwanted cross-origin requests.
     # You can set specific domains or use ["*"] for allowing all origins.
-    allow_origins=origins,
+    allow_origins= origins,
 
     # allow_credentials: When set to True, allows browsers to include credentials (such as cookies,
     # authorization headers, or TLS client certificates) in requests to the API. This is essential for APIs
@@ -86,7 +85,7 @@ app.add_middleware(
     # allow_methods: Defines which HTTP methods are allowed when accessing the resource. This list should
     # match the methods supported by your API. It's a way to limit the types of requests that can be made,
     # enhancing security.
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_methods= ["GET", "POST", "PUT", "PATCH", "DELETE"],
 
     # allow_headers: Specifies which headers can be included in the requests. Setting this to ["*"] allows
     # all headers. For tighter security, you can specify only the headers your API needs to function.

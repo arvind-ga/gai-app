@@ -71,7 +71,7 @@ export const createUser = async (user, accessToken) => {
 
 
 // ChatGPT
-export const fetchChatResponse = async (question, accessToken, model) => {
+export const fetchChatResponse = async (question, accessToken, model, username) => {
     // Simulated API call
     console.log("Sending question to the API:", question, "with model", model);
 
@@ -83,6 +83,7 @@ export const fetchChatResponse = async (question, accessToken, model) => {
         method: 'GET',
         headers: {
             'accept': 'application/json',
+            'username': username,
             'api-key': accessToken,
         },
     });
@@ -166,7 +167,14 @@ export const fetchQuiz = async (id) => {
     try {
         const url = `${API_BASE_URL}/quiz/${id}`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
-        const response = await axios.get(url);
+
+        const response = await axios.get(url, {
+        method: 'GET',
+        headers: {
+            'accept': 'application/json',
+            'access-key': accessToken,
+        },
+    });
         console.log("Received quiz data:", response.data);  // Log response data
         return response.data;
     } catch (error) {
@@ -179,7 +187,13 @@ export const fetchQuiz = async (id) => {
 // Submit quiz response
 export const submitQuizResponse = async (responseData) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/save-quiz-response`, responseData);
+        const response = await axios.post(`${API_BASE_URL}/save-quiz-response`, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'access-key': accessToken,
+            },
+        responseData});
         return response.data;
     } catch (error) {
         console.error("Error submitting quiz response:", error);
@@ -191,7 +205,13 @@ export const submitQuizResponse = async (responseData) => {
 // Generate Report
 export const GenerateReport = async (user_id) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`);
+        const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'access-key': accessToken,
+            },
+        });
         console.log("Please is being generated js:", response.data);
         return response.data;
     } catch (error) {
@@ -205,7 +225,13 @@ export const downloadReport = async (id) => {
         // Fetch the download link from the backend
         const url = `${API_BASE_URL}/report-download-link/${id}`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
-        const response = await axios.get(url);
+        const response = await axios.get(url, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'access-key': accessToken,
+            },
+        });
 //        const response = await getReportDownloadLink(id);
 
         if (response?.data) {

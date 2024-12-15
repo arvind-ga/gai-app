@@ -7,7 +7,7 @@ from fastapi import HTTPException, Header, Request
 load_dotenv()  # loading environment variables
 
 
-connection_string = os.getenv("connection_string")
+connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 container_name = os.getenv("container_name")
 
 # Initialize the BlobServiceClient
