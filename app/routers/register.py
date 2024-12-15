@@ -1,3 +1,4 @@
+import os
 import secrets
 from datetime import timedelta
 
@@ -182,7 +183,7 @@ async def forgot_password(email: str): #, request: Request):
         poller = client.begin_send(message)
         result = poller.result()
         if result:
-            print(f"Email sent successfully! Message ID: {result.message_id}")
+            print(f"Email sent successfully! Message ID: {result}")
         else:
             print("Failed to send email.")
         return {"message": "If an account with this email was found, a password reset link has been sent."}

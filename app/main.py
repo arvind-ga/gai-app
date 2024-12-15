@@ -112,7 +112,7 @@ app.include_router(auth.router, prefix=prefix_path, tags=["auth"])
 # and deleting user accounts. Access to these endpoints is secured with JWT tokens, ensuring
 # that only authenticated users can perform these operations.
 app.include_router(users.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["users"])
-app.include_router(quizrouts.router, prefix=prefix_path,)
+app.include_router(quizrouts.router, prefix=prefix_path, tags=["Quizzes"])
 
 # ChatGPT Routes
 # Hosts endpoints for interacting with ChatGPT functionalities, including initiating conversations,
