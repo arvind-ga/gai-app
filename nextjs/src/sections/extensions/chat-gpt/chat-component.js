@@ -35,7 +35,7 @@ const loadChatsFromCache = () => {
 };
 
 const ChatComponent = () => {
-    const {accessToken} = useAuth();
+    const {accessToken, userProfile} = useAuth();
     const [message, setMessage] = useState('');
     const [activeTab, setActiveTab] = useState(0);
     const [chats, setChats] = useState(loadChatsFromCache());
@@ -53,7 +53,6 @@ const ChatComponent = () => {
 
     const handleSendMessage = async () => {
         if (!message.trim()) return;
-        const {userProfile} = useAuth();
 
         // Check if there are no open tabs/conversations and open a new one if needed
         if (chats.length === 0) {
@@ -61,7 +60,9 @@ const ChatComponent = () => {
             await new Promise(resolve => setTimeout(resolve, 0)); // Allow state to update
         }
 
-        const response = await fetchChatResponse(message, accessToken, model, userProfile?.username);
+        const username = userProfile?.username;
+        const response = await fetchChatResponse(message, accessToken, model, username);
+        // const response = await fetchChatResponse(message, accessToken, model, username);
 
         // Initialize with empty answer in the appropriate conversation
         // This might not be necessary if you're updating the chat in the interval below

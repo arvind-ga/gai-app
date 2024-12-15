@@ -78,12 +78,12 @@ export const fetchChatResponse = async (question, accessToken, model, username) 
     const url = new URL(`${API_BASE_URL}/chat/`);
     url.searchParams.append('question', question);
     url.searchParams.append('model', model);
+    url.searchParams.append('username', username);
 
     const response = await fetch(url, {
         method: 'GET',
         headers: {
             'accept': 'application/json',
-            'username': username,
             'api-key': accessToken,
         },
     });
