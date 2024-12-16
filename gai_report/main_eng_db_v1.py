@@ -9,6 +9,11 @@ from gai_report.model_code.model_training.model_inference import clf, convert_re
 from gai_report.common_fn.gpt4_resp import *
 
 from app.components.logger import logger
+from app.db.mongoClient import async_database
+from app.components.logger import logger
+from uuid import uuid4
+
+student_score_collection = async_database.student_score  # Get the collection from the database
 ########################################
 ######### Report Generation ############
 interest_data = {"Science": 40, "Arts": 20, "Sports": 15, "Technology": 25}
@@ -215,6 +220,10 @@ async def generate_report(user_detail):
     print("aptitude_scores:::", aptitude_scores)
     print("emotional_quotient:::", emotional_quotient)
 
+    student_score_dict = {"username":student_details["user_name"], "personilty": persn_dict, "academic_subject": subject_strength_dict,
+        "aptitude": aptitude_scores, "emotional": emotional_quotient}
+    ### Updating to DB
+    student_score_collection.insert_one(student_score_dict)
     ################### Comment on performance ####################
     response1 = gpt4_pers_response(pers_prompt.format(pers_dict=persn_dict)).json()
     personality_comment = response1.get("choices")[0].get("message").get("content")
