@@ -4,7 +4,7 @@ class RolePermissions:
     role_permissions_map = {
         "owner": ["read", "write", "delete", "edit"],
         "admin": ["read", "write", "edit"],
-        "user": ["read", "edit"]
+        "user": ["read", "write", "edit"]
     }
 
 

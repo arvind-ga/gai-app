@@ -23,10 +23,11 @@ export default function QuizLinks() {
         setReportGenerating(true);
         try {
             console.log('Generating Student Report');
-            // const response = await GenerateReport(userProfile, accessToken);
+            // const response = await GenerateReport(userProfile?.username);
+            console.log("User profile:", userProfile);
+            console.log("Access token:", accessToken);
             const response = await GenerateReport(userProfile?.username, accessToken);
             console.log('Report generated successfully:', response);
-            setEditMode(false); // Exit edit mode on success
         } catch (error) {
             console.error('Error while generating report:', error);
             setReportGenerating(false);
@@ -100,7 +101,7 @@ export default function QuizLinks() {
                 {reportGenerated && (
                     
                     <Button
-                        onClick={() => downloadReport(userProfile?.username)} 
+                        onClick={() => downloadReport(userProfile?.username, accessToken)} 
                         variant="outlined"
                         color="success"
                         sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}

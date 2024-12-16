@@ -36,7 +36,7 @@ async def get_quiz(quiz_id: str):
     print("Quiz Details:::", jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]}))
     return jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]})
 
-@router.post("/save-quiz-response", dependencies=[Depends(check_permissions)])
+@router.post("/save-quiz-response/", dependencies=[Depends(check_permissions)])
 async def save_quiz_response(response: QuizResponse):
     try:
         # Debugging: Log the incoming response
@@ -47,13 +47,13 @@ async def save_quiz_response(response: QuizResponse):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/generate-report/{user_id}", dependencies=[Depends(check_permissions)])
-async def generate_student_report(user_id: str, request: Request):
+@router.post("/generate-report/", dependencies=[Depends(check_permissions)])
+async def generate_student_report(user_id: str):
     try:
         # Fetch user from the database
         logger.info(f"Entered in generate report function")
         logger.info(f"Received request for user_id: {user_id}")
-        logger.info(f"Headers: {request.headers}")
+        # logger.info(f"Headers: {request.headers}")
         user = await user_collection.find_one({"username": user_id})
         if not user:
             logger.error(f"User with id {user_id} not found")
@@ -95,7 +95,7 @@ async def generate_student_report(user_id: str, request: Request):
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
 
-@router.get("/report-download-link/{user_id}", dependencies=[Depends(check_permissions)])
+@router.get("/report-download-link/", dependencies=[Depends(check_permissions)])
 async def get_report_download_link(user_id: str):
     try:
         report_name = user_id + ".pdf"

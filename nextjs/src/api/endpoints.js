@@ -153,27 +153,23 @@ export const updateMessageSettings = async ({section, settings, accessToken}) =>
     return settings;
 };
 
-export const submitQuiz = async (quizData) => {
-    const response = await axios.post(`${API_BASE_URL}/submit_quiz/`, {
-        quizData
-    }, {
-        headers: staticBearerHeader,
-    });
+// export const submitQuiz = async (quizData) => {
+//     const response = await axios.post(`${API_BASE_URL}/submit_quiz/`, {
+//         quizData
+//     }, {
+//         headers: staticBearerHeader,
+//     });
 
-    return response.data;
-};
+//     return response.data;
+// };
 
-export const fetchQuiz = async (id) => {
+export const fetchQuiz = async (id, accessToken) => {
     try {
         const url = `${API_BASE_URL}/quiz/${id}`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
 
         const response = await axios.get(url, {
-        method: 'GET',
-        headers: {
-            'accept': 'application/json',
-            'access-key': accessToken,
-        },
+        headers: jsonHeader(accessToken)
     });
         console.log("Received quiz data:", response.data);  // Log response data
         return response.data;
@@ -185,14 +181,10 @@ export const fetchQuiz = async (id) => {
 
 
 // Submit quiz response
-export const submitQuizResponse = async (responseData) => {
+export const submitQuizResponse = async (responseData, accessToken) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/save-quiz-response`, {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'access-key': accessToken,
-            },
+            headers: jsonHeader(accessToken),
         responseData});
         return response.data;
     } catch (error) {
@@ -212,12 +204,13 @@ export const GenerateReport = async (user_id, accessToken) => {
         if (!accessToken) throw new Error("Access token is required");
         // const encodedUserId = encodeURIComponent(user_id);
 
-        const response = await axios.post(`${API_BASE_URL}/generate-report/${user_id}`, {}, {
-            headers: {
-                'accept': 'application/json',
-                'access-key': accessToken,
-            },
-        });
+        const response = await axios.post(`${API_BASE_URL}/generate-report/`,
+            {}, // Empty body
+        {
+        params: { user_id }, // Send user_id as query parameter
+        headers: { 'accept': 'application/json', 'api-key': accessToken },
+            }
+        );
         console.log("Please is being generated js:", response.data);
         return response.data;
     } catch (error) {
@@ -226,24 +219,24 @@ export const GenerateReport = async (user_id, accessToken) => {
     }
 };
 
-export const downloadReport = async (id) => {
+export const downloadReport = async (user_id, accessToken) => {
     try {
         // Fetch the download link from the backend
-        const url = `${API_BASE_URL}/report-download-link/${id}`;
+        const url = `${API_BASE_URL}/report-download-link/`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
-        const response = await axios.get(url, {
-            method: 'GET',
-            headers: {
-                'accept': 'application/json',
-                'access-key': accessToken,
-            },
-        });
+        const response = await axios.get(url,
+            {}, // Empty body
+    {
+        params: { "user_id":user_id }, // Send user_id as query parameter
+        headers: { 'accept': 'application/json', 'api-key': accessToken },
+    }
+        );
 //        const response = await getReportDownloadLink(id);
 
         if (response?.data) {
-            console.log("Redirecting to download URL:", response.data.url);
+            console.log("Redirecting to download URL:", response.data);
             // Trigger file download by navigating to the URL
-            window.location.href = response.data.url;
+            window.location.href = response.data;
         } else {
             alert("No URL found in the response.");
             console.error("Response did not contain a valid URL:", response);

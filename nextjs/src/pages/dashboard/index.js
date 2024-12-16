@@ -107,7 +107,7 @@ const Dashboard = () => {
         router.push('/user-profile');
     };
 
-    const {userProfile} = useAuth();
+    const { userProfile, accessToken } = useAuth();
 
     const stats = [
         {label: '1. Complete/Update Profile', value: 12},
@@ -161,7 +161,7 @@ const Dashboard = () => {
                         onClick={() => {
                             if (index === 0) router.push('/user-profile');
                             else if (index === 1) router.push('/quiz-links');
-                            else if (index === 2) downloadReport(userProfile?.username);
+                            else if (index === 2) downloadReport(userProfile?.username, accessToken);
                         }}
                         sx={{
                             p: 2,
