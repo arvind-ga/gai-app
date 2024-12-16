@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def ask_chatgpt_with_context(gpt_question: str, username: str, model: str = "gpt-4"):
+    logger.info(f"Inside ask_chatgpt_with_context function")
     student_score = student_score_collection.find_one({"id": username})
     logger.info(f"Inside ask_chatgpt_with_context::: {gpt_question} {username} {model}")
     content = """
@@ -29,7 +30,7 @@ def ask_chatgpt_with_context(gpt_question: str, username: str, model: str = "gpt
       Analyse and understand score of student in variaous fields from the dictionary {student_score} and answer student query, don't mention or quote numbers from the dictionary directly.
       # Student Scores #
       Below is the query from the student {gpt_question}
-      """.format(gpt_question=gpt_question)
+      """.format(student_score=student_score, gpt_question=gpt_question)
 
     ###################
 

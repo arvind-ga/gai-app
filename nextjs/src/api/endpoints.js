@@ -73,15 +73,15 @@ export const createUser = async (user, accessToken) => {
 // ChatGPT
 export const fetchChatResponse = async (question, accessToken, model, username) => {
     // Simulated API call
+    console.log("Username:", username, "with AccessToken", accessToken);
     console.log("Sending question to the API:", question, "with model", model);
 
     const url = new URL(`${API_BASE_URL}/chat/`);
     url.searchParams.append('question', question);
     url.searchParams.append('model', model);
-    url.searchParams.append('username', username);
 
     const response = await fetch(url, {
-        method: 'GET',
+        params: { username },
         headers: {
             'accept': 'application/json',
             'api-key': accessToken,
@@ -222,10 +222,11 @@ export const GenerateReport = async (user_id, accessToken) => {
 export const downloadReport = async (user_id, accessToken) => {
     try {
         // Fetch the download link from the backend
+        console.log(`user_id: ${user_id}`);
+        console.log(`accessToken: ${accessToken}`);
         const url = `${API_BASE_URL}/report-download-link/`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
         const response = await axios.get(url,
-            {}, // Empty body
     {
         params: { "user_id":user_id }, // Send user_id as query parameter
         headers: { 'accept': 'application/json', 'api-key': accessToken },
@@ -234,9 +235,9 @@ export const downloadReport = async (user_id, accessToken) => {
 //        const response = await getReportDownloadLink(id);
 
         if (response?.data) {
-            console.log("Redirecting to download URL:", response.data);
+            console.log("Redirecting to download URL:", response.data.url);
             // Trigger file download by navigating to the URL
-            window.location.href = response.data;
+            window.location.href = response.data.url;
         } else {
             alert("No URL found in the response.");
             console.error("Response did not contain a valid URL:", response);
