@@ -220,7 +220,7 @@ async def generate_report(user_detail):
     print("aptitude_scores:::", aptitude_scores)
     print("emotional_quotient:::", emotional_quotient)
 
-    student_score_dict = {"username":student_details["user_name"], "personilty": persn_dict, "academic_subject": subject_strength_dict,
+    student_score_dict = {"id":student_details["user_name"], "personilty": persn_dict, "academic_subject": subject_strength_dict,
         "aptitude": aptitude_scores, "emotional": emotional_quotient}
     ### Updating to DB
     student_score_collection.insert_one(student_score_dict)
