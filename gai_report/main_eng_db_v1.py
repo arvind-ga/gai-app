@@ -203,9 +203,9 @@ async def generate_report(user_detail):
   """
     career_recommend_prompt = """
       # YOUR ROLE #
-      You are a career counsellor expert. Give best suited 6 career options with description what steps to follow 
-      in a html-format for student based on evaluation and performance dictionary given below along with 
-      description about role in a paragraph
+      You are a career counsellor expert. Give best suited 5 career options in a paragraph (5-6 lines) 
+      for student based on evaluation and performance dictionary given below along with 
+      slight description about role
       # STUDENT RESPONSE #
       student's personality distribution{emot_dict}
       student's aptitude performance distribution{apti_dict}

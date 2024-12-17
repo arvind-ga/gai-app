@@ -100,34 +100,51 @@ def get_divider():
     return divider
 
 def beautify_text(content, raw_html):
-    
     # Step 1: Extract clean text from HTML
     soup = BeautifulSoup(raw_html, 'html.parser')
 
+    # Step 2: Define styles
     styles = getSampleStyleSheet()
     # Custom styles
-    title_style = ParagraphStyle('title_style', parent=styles['Heading1'], fontSize=16, textColor='darkblue')
-    subtitle_style = ParagraphStyle('subtitle_style', parent=styles['Heading2'], fontSize=14, textColor='darkgreen')
-    body_style = ParagraphStyle('body_style', parent=styles['BodyText'], fontSize=11)
+    title_style = ParagraphStyle('title_style', parent=styles['Heading4'], fontSize=16, textColor='black')
+    subtitle_style = ParagraphStyle('subtitle_style', parent=styles['Heading5'], fontSize=14, textColor='black')
+    body_style = ParagraphStyle(
+        'body_style', 
+        parent=styles['BodyText'], 
+        fontSize=11, 
+        leading=12, 
+        spaceBefore=0, 
+        spaceAfter=0
+    )
 
-    # Extract and format content
-    content.append(Paragraph(soup.h1.get_text(), title_style))  # Main title
-    content.append(Spacer(1, 12))
+    # Step 3: Format content
+    if soup.h1:
+        content.append(Paragraph(soup.h1.get_text(), title_style))  # Main title
+        content.append(Spacer(1, 6))  # Adjusted spacer size for less space
 
-    for career in soup.find_all('li'):
+    for career in soup.find_all('li', recursive=False):  # Only top-level <li> elements
         # Extract career title
         title = career.h3.get_text() if career.h3 else ''
         content.append(Paragraph(title, subtitle_style))
-        
-        # Extract steps
-        steps = career.find_all('li')
-        step_list = ListFlowable(
-            [ListItem(Paragraph(step.get_text(), body_style)) for step in steps],
-            bulletType='bullet'
-        )
-        content.append(step_list)
-        content.append(Spacer(1, 12))
+
+        # Extract steps (nested <li> elements)
+        steps = career.find('ul')  # Find nested list
+        if steps and steps.find_all('li'):  # Check if nested list has items
+            step_list = ListFlowable(
+                [ListItem(Paragraph(step.get_text(), body_style)) for step in steps.find_all('li')],
+                bulletType='bullet',
+                spaceBefore=2,  # Reduce space before the list
+                spaceAfter=2    # Reduce space after the list
+            )
+            content.append(step_list)
+        else:
+            # Skip "No steps available." if no nested list exists
+            content.append(Paragraph("No steps available.", body_style))
+
     return content
+
+
+
 
 # Function to generate the PDF report
 def generate_pdf_report(
@@ -414,7 +431,7 @@ def generate_pdf_report(
     content.append(Spacer(1, 12))
 
     ### Fifth Page - Career Recommendation
-    content.append(Paragraph("Recommendation", styles["Heading2"]))
+    content.append(Paragraph("Recommendation:", styles["Heading2"]))
     # content.append(Paragraph("1. {}".format(career_option_list[0]), styles["Heading4"]))
     # content.append(Paragraph("2. {}".format(career_option_list[1]), styles["Heading4"]))
     # content.append(Paragraph("3. {}".format(career_option_list[2]), styles["Heading4"]))
@@ -424,21 +441,19 @@ def generate_pdf_report(
     # ###
     # for i in career_option_list:
     #     content.append(Paragraph("{}".format(i), styles["Heading5"]))
-    content.append(Paragraph("Stream  Recommendation:", styles["Heading4"]))
+    content.append(Paragraph("Stream  Recommendation:", styles["Heading3"]))
     stream_option_list2 = BeautifulSoup(stream_option_list, 'html.parser')
     stream_option_list3 = stream_option_list2.get_text(separator="\n", strip=True)
     logger.info(f"career_option_list: {stream_option_list3}")
     content.append(Paragraph("{}".format(stream_option_list3), styles["Heading5"]))
+    # content.append(get_divider())
     ##################################
-    content.append(Paragraph("Career Option Recommendation:", styles["Heading4"]))
-    # career_option_list2 = BeautifulSoup(career_option_list, 'html.parser')
-    # career_option_list3 = career_option_list2.get_text(separator="\n", strip=True)
+    content.append(Paragraph("Career Option Recommendation:", styles["Heading3"]))
     logger.info(f"career_option_list: {career_option_list}")
-    content = beautify_text(content, career_option_list)
+    # content = beautify_text(content, career_option_list)
     # career_option_list = escape(career_option_list) 
-    # content.append(Paragraph("{}".format(career_option_list3), styles["Heading5"]))
+    content.append(Paragraph("{}".format(career_option_list), styles["Heading5"]))
     content.append(Spacer(1, 12))
-    # content.append(Paragraph("{}".format(career_option_list), styles["Heading5"]))
 
     content.append(get_divider())
     content.append(Spacer(1, 12))
