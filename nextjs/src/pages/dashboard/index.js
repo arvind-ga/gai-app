@@ -244,12 +244,12 @@ const Dashboard = () => {
                 </Typography>
             </Box>
 
-            <Box sx={{display: 'flex', justifyContent: 'center', mt: 4}}>
+            {/* <Box sx={{display: 'flex', justifyContent: 'center', mt: 4}}>
                 <Button variant="contained" color="primary"
                         onClick={() => alert('complete quizzes to get your personal assessment report')}>
                     Generate Your Report
                 </Button>
-            </Box>
+            </Box> */}
         </>
     );
 }; 
