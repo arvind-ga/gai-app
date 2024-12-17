@@ -31,7 +31,7 @@ export const menuItems = [
         label: "About Us",
         tooltip: "README.md Documentations",
         path: "/",
-        authenticated: null
+        authenticated: false
     },
     {
         icon: <PolicyIcon sx={iconStyle}/>,
