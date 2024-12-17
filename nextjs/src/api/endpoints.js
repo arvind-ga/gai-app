@@ -72,19 +72,19 @@ export const createUser = async (user, accessToken) => {
 
 // ChatGPT
 export const fetchChatResponse = async (question, accessToken, model, username) => {
-    // Simulated API call
     console.log("Username:", username, "with AccessToken", accessToken);
     console.log("Sending question to the API:", question, "with model", model);
 
     const url = new URL(`${API_BASE_URL}/chat/`);
     url.searchParams.append('question', question);
     url.searchParams.append('model', model);
+    url.searchParams.append('username', username); // Add username here
 
     const response = await fetch(url, {
-        params: { username },
+        method: "GET",
         headers: {
             'accept': 'application/json',
-            'api-key': accessToken,
+            'api-key': accessToken, // Proper API key for authorization
         },
     });
 
