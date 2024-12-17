@@ -20,7 +20,7 @@ export const menuItems = [
     },
     {
     icon: <ChatGptIcon width={20} height={20} sx={iconStyle} />, // Using ChatGPT icon directly
-    label: "Ask Anything",
+    label: "GakudoGPT",
     tooltip: "AI Guide", // Updated tooltip to match functionality
     path: "/extensions/chatgpt", // Direct path to ChatGPT
     authenticated: true

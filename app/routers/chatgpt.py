@@ -11,7 +11,7 @@ router = APIRouter()  # loading the FastAPI app
 chat_collection = async_database.chatgpt  # Get the collection from the database
 
 @router.get("/chat/", dependencies=[Depends(check_permissions)])
-async def chat_with_gpt(question: str, model: str, username: str ):
+async def chat_with_gpt(question: str, model: ChatGptModelEnum, username: str ):
     logger.info(f"Inside chat router::: {question} {username} {model}")
     """
     Chat with ChatGPT
