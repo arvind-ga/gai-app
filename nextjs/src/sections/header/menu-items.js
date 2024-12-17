@@ -4,6 +4,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import ExtensionIcon from '@mui/icons-material/Extension';
+import PolicyIcon from '@mui/icons-material/Policy';
 import React from "react";
 import {ChatGptIcon} from "@/theme/menu-icons";
 import BusinessIcon from '@mui/icons-material/Business';
@@ -33,11 +34,19 @@ export const menuItems = [
         authenticated: null
     },
     {
+        icon: <PolicyIcon sx={iconStyle}/>,
+        label: "Policies",
+        tooltip: "Policies Page",
+        path: "/terms",
+        authenticated: false
+    },
+    {
         icon: <LoginIcon sx={iconStyle}/>,
         label: "Login",
         tooltip: "Login Page",
         path: "/login",
         authenticated: false
     },
+    
     
 ];
