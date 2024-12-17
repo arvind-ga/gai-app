@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import {
@@ -27,11 +28,13 @@ import { amber, blue, deepPurple, green, pink, red } from '@mui/material/colors'
 import Loading from '@/components/loading';
 import { getProfile, updateUser } from '@/api/endpoints';
 import { useAuth } from '@/api/auth/auth-context';
+import { useRouter } from 'next/router';
 
 function UserProfile() {
     const { accessToken, setAccessToken } = useAuth();
     const [editMode, setEditMode] = useState(false);
     const [editedUser, setEditedUser] = useState(null);
+    const router = useRouter();
 
     const { data: user, isLoading, isError } = useQuery(
         'userProfile',
@@ -55,9 +58,15 @@ function UserProfile() {
         try {
             const response = await updateUser(editedUser, accessToken);
             console.log('User updated successfully:', response);
-            setEditMode(false); // Exit edit mode on success
+            toast.success('Your profile has been updated successfully!');
+            // router.push('/dashboard');
+            setTimeout(() => {
+                router.push('/dashboard');
+            }, 1000);
+            // setEditMode(false); // Exit edit mode on success
         } catch (error) {
             console.error('Error saving user data:', error);
+            toast.error('There is some error while updating profile');
         }
     };
 

@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useRouter } from 'next/router';
@@ -26,7 +27,7 @@ import { useAuth } from '@/api/auth/auth-context';
 //const initialId = '1';
 const QuizPage = ({ quiz_id }) => {
     console.log("Entered in QuizPage");
-
+    const router = useRouter();
     const { accessToken } = useAuth();
     const [responses, setResponses] = useState({});
     const [submissionMessage, setSubmissionMessage] = useState('');
@@ -53,8 +54,8 @@ const QuizPage = ({ quiz_id }) => {
 
     const handleSubmit = async () => {
         if (!quiz || Object.keys(responses).length < quiz.questions.length) {
-            alert('Please answer all questions before submitting.');
-            return;
+            toast.error('Please answer all questions before submitting.');
+            return; // Ensure the function exits if the condition is true
         }
 
         const submissionData = {
@@ -68,10 +69,15 @@ const QuizPage = ({ quiz_id }) => {
 
         try {
             const result = await submitQuizResponse(submissionData, accessToken);
-            setSubmissionMessage('Quiz submitted successfully!');
+            toast.success('Submission successful!');
+            // router.push('/quiz-links');
+            setTimeout(() => {
+                router.push('/quiz-links');
+            }, 1000);
             console.log('Submission successful:', result);
         } catch (error) {
             console.error('Error submitting quiz response:', error);
+            toast.error('Fail to submit quiz, please try again!');
             setSubmissionMessage('Failed to submit quiz. Please check your answers or try again.');
         }
     };
