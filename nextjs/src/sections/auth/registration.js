@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material'
 import {
     Button,
     Dialog,
@@ -19,6 +20,7 @@ export default function RegistrationModal({open, handleClose}) {
         fullName: '',
         username: '',
         email: '',
+        standard: '',
         password: '',
         confirmPassword: '',
     });
@@ -40,9 +42,32 @@ export default function RegistrationModal({open, handleClose}) {
         setCaptcha(generateCaptcha());
     }, []);
 
+    // const handleChange = (e) => {
+    //     setUserData({...userData, [e.target.name]: e.target.value});
+    // };
     const handleChange = (e) => {
-        setUserData({...userData, [e.target.name]: e.target.value});
+        const { name, value } = e.target;
+    
+        if (name === 'email') {
+            const extractedName = value.split('@')[0];
+            setUserData({
+                ...userData,
+                email: value,
+                fullName: extractedName.charAt(0).toUpperCase() + extractedName.slice(1), // Capitalize the first letter
+            });
+        } else if (name === 'username') {
+            const isValid = /^[a-z0-9_]*$/.test(value); // Allow only lowercase letters, numbers, and underscores
+            if (isValid) {
+                setUserData({ ...userData, username: value });
+            } else {
+                toast.error('Username can only contain lowercase letters, numbers, and underscores!');
+            }
+        } else {
+            setUserData({ ...userData, [name]: value });
+        }
     };
+    
+    
 
     const registrationMutation = useMutation(postRegister, {
         onSuccess: (data) => {
@@ -89,19 +114,6 @@ export default function RegistrationModal({open, handleClose}) {
             </DialogTitle>
             <DialogContent dividers>
                 <TextField
-                    autoFocus
-                    margin="dense"
-                    id="fullName"
-                    label="Full Name"
-                    type="text"
-                    fullWidth
-                    name="fullName"
-                    variant="outlined"
-                    value={userData.fullName}
-                    onChange={handleChange}
-                    sx={{mb: 2}}
-                />
-                <TextField
                     margin="dense"
                     id="username"
                     label="Username"
@@ -125,6 +137,26 @@ export default function RegistrationModal({open, handleClose}) {
                     onChange={handleChange}
                     sx={{mb: 2}}
                 />
+                <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                    <InputLabel id="standard-label">Standard</InputLabel>
+                    <Select
+                        labelId="standard-label"
+                        id="standard"
+                        name="standard"
+                        value={userData.standard}
+                        onChange={handleChange}
+                        label="Standard" // Ensure this matches the InputLabel text
+                    >
+                        <MenuItem value="8">8</MenuItem>
+                        <MenuItem value="9">9</MenuItem>
+                        <MenuItem value="10">10</MenuItem>
+                        <MenuItem value="11">11</MenuItem>
+                        <MenuItem value="12">12</MenuItem>
+                        <MenuItem value="Undergraduation">Undergraduation</MenuItem>
+                        <MenuItem value="Post graduation">Post Graduation</MenuItem>
+                        <MenuItem value="Job">Job</MenuItem>
+                    </Select>
+                </FormControl>
                 <TextField
                     margin="dense"
                     id="password"

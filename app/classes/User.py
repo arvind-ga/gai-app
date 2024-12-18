@@ -17,7 +17,7 @@ class UserBase(BaseModel):
     full_name: str  # User's full name
     disabled: Optional[bool] = None  # Optional field to disable the user
     role: Role = Role.user  # Default role
-    standard: Optional[int] = 10  # Default standard to 10
+    standard: str   # Default standard to 10
     school_name: Optional[str] = "Default School"  # Default school name
     medium: Optional[str] = "English"  # Default medium to English
     mobile_number: Optional[str] = "0000000000"  # Default mobile number
@@ -30,7 +30,7 @@ class UpdateUser(BaseModel):
     disabled: Optional[bool] = None  # Remains optional
     role: Optional[Role] = Role.user  # Optional, with a default value if not provided
     password: Optional[str] = None
-    standard: Optional[int] = 10  # Default standard to 10
+    standard: Optional[int] = "10"  # Default standard to 10
     school_name: Optional[str] = "Default School"  # Default school name
     medium: Optional[str] = "English"  # Default medium to English
     mobile_number: Optional[str] = "0000000000"  # Default mobile number
@@ -56,8 +56,8 @@ class User(UserBase):
                 "email": "info@gakudoai.com",
                 "full_name": "Gakudo AI",
                 "disabled": False,
-                "standard": 10,
-                "school_name": "Default School",
+                "standard": "10",
+                "school_name": "ABC School",
                 "medium": "English",
                 "mobile_number": "0000000000",
             }
@@ -71,6 +71,7 @@ class UserRegistration(BaseModel):
     email: EmailStr
     full_name: str
     password: str
+    standard: str
 
     class Config:
         json_schema_extra = {

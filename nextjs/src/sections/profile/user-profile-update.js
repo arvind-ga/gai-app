@@ -10,6 +10,10 @@ import {
     IconButton,
     TextField,
     Typography,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -29,6 +33,9 @@ import Loading from '@/components/loading';
 import { getProfile, updateUser } from '@/api/endpoints';
 import { useAuth } from '@/api/auth/auth-context';
 import { useRouter } from 'next/router';
+
+const standards = ["8", "9", "10", "11", "12", "Undergraduation", "Post graduation", "Job"];
+const mediums = ["English"];
 
 function UserProfile() {
     const { accessToken, setAccessToken } = useAuth();
@@ -172,14 +179,23 @@ function UserProfile() {
                     <Grid item xs={12} sm={6} display="flex" alignItems="center">
                         <LanguageIcon sx={{ color: blue[500], mr: 1 }} />
                         {editMode ? (
-                            <TextField
-                                fullWidth
-                                label="Medium"
-                                variant="outlined"
+                            <FormControl fullWidth variant="outlined">
+                            <InputLabel id="medium-label">Medium</InputLabel>
+                            <Select
+                                labelId="medium-label"
+                                id="medium"
                                 value={editedUser.medium || ''}
                                 name="medium"
                                 onChange={handleChange}
-                            />
+                                label="Medium" // This ensures the label floats correctly
+                            >
+                                {mediums.map((medium) => (
+                                    <MenuItem key={medium} value={medium}>
+                                        {medium}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                         ) : (
                             <Typography variant="body2">Medium: {user.medium}</Typography>
                         )}
@@ -202,14 +218,24 @@ function UserProfile() {
                     <Grid item xs={12} sm={6} display="flex" alignItems="center">
                         <BadgeIcon sx={{ color: amber[700], mr: 1 }} />
                         {editMode ? (
-                            <TextField
-                                fullWidth
-                                label="Standard"
-                                variant="outlined"
+                            <FormControl fullWidth variant="outlined">
+                            <InputLabel id="standard-label">Standard</InputLabel>
+                            <Select
+                                labelId="standard-label"
+                                id="standard"
                                 value={editedUser.standard || ''}
                                 name="standard"
                                 onChange={handleChange}
-                            />
+                                label="Standard" // Ensures proper label behavior
+                            >
+                                {standards.map((standard) => (
+                                    <MenuItem key={standard} value={standard}>
+                                        {standard}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        
                         ) : (
                             <Typography variant="body2">Standard: {user.standard}</Typography>
                         )}

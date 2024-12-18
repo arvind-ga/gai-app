@@ -124,11 +124,13 @@ export const postResetPassword = async ({token, newPassword}) => {
 
 
 export const postRegister = async (userData) => {
+    console.info("inside postRegister frontend function", userData)
     const response = await axios.post(`${API_BASE_URL}/register/`, {
         email: userData.email,
         full_name: userData.fullName,
         password: userData.password,
         username: userData.username,
+        standard: userData.standard,
     }, {
         headers: staticBearerHeader,
     });
