@@ -243,7 +243,7 @@ export const downloadReport = async (user_id, accessToken) => {
             console.error("Response did not contain a valid URL:", response);
         }
     } catch (error) {
-        alert("Error while fetching the download link. Please try again.");
+        alert("Error, Report not generated. Please complete test and generate report then try again.");
         console.error("Error in downloading report:", error);
     }
 };
