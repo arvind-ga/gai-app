@@ -155,24 +155,33 @@ export const updateMessageSettings = async ({section, settings, accessToken}) =>
     return settings;
 };
 
-// export const submitQuiz = async (quizData) => {
-//     const response = await axios.post(`${API_BASE_URL}/submit_quiz/`, {
-//         quizData
-//     }, {
-//         headers: staticBearerHeader,
-//     });
-
-//     return response.data;
-// };
-
-export const fetchQuiz = async (id, accessToken) => {
+export const fetchQuiz = async (quiz_id, accessToken) => {
     try {
-        const url = `${API_BASE_URL}/quiz/${id}`;
+        const url = `${API_BASE_URL}/quiz/${quiz_id}`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
 
         const response = await axios.get(url, {
         headers: jsonHeader(accessToken)
     });
+        console.log("Received quiz data:", response.data);  // Log response data
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching quiz:", error.response?.data || error.message);  // Log error details
+        throw error;
+    }
+};
+
+export const checkQuizResponseExist = async (quiz_id, user_id, accessToken) => {
+    try {
+        const url = `${API_BASE_URL}/check-quiz-response-exist/`;
+        console.log(`Making GET request to: ${url}`);  // Log the URL
+
+        const response = await axios.get(url,
+            {
+            params: { quiz_id, user_id }, // Send user_id as query parameter
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+                }
+            );
         console.log("Received quiz data:", response.data);  // Log response data
         return response.data;
     } catch (error) {
@@ -195,6 +204,28 @@ export const submitQuizResponse = async (responseData, accessToken) => {
     }
 };
 
+
+// Generate Report
+export const checkReportExist = async (user_id, accessToken) => {
+    try {
+        console.log("User ID:", user_id);
+        console.log("Access token:", accessToken);
+
+        if (!user_id) throw new Error("user_id is required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.get(`${API_BASE_URL}/check-report-exist/`, {
+            params: { user_id }, // Send user_id as query parameter
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+
+        console.log("Checking report exists or not js:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Please complete all the quiz:", error);
+        throw error;
+    }
+};
 
 // Generate Report
 export const GenerateReport = async (user_id, accessToken) => {

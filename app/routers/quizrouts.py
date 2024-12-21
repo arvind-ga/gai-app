@@ -13,7 +13,7 @@ from app.components.hash_password import hash_password
 from app.components.logger import logger
 from app.components.message_dispatcher.mail import send_email_and_save
 from app.db.mongoClient import async_database
-from app.db.downloadReport import generate_report_download_url, check_blob_exists
+from app.db.downloadReport import generate_report_download_url, check_blob_exist
 from app.db.uploadReport import upload_report
 from app.routers.users import user_exists
 from fastapi.encoders import jsonable_encoder
@@ -36,6 +36,20 @@ async def get_quiz(quiz_id: str):
     print("Quiz Details:::", jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]}))
     return jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]})
 
+@router.get("/check-quiz-response-exist/", dependencies=[Depends(check_permissions)])
+async def check_quiz_response_exist(quiz_id: str, user_id: str):
+    try:
+        # Debugging: Log the incoming response
+        print("Check quiz response for user_id", user_id)
+        # Save user response in the database
+        result = await quiz_response_collection.find_one({"username": user_id, "quizId": quiz_id})
+        if result:
+            return {"message": "You have already submitted the quiz", "message_code": "already_submitted"}
+        else:
+            return {"message": "You have not submitted the quiz", "message_code": "not_submitted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/save-quiz-response/", dependencies=[Depends(check_permissions)])
 async def save_quiz_response(response: QuizResponse):
     try:
@@ -46,6 +60,27 @@ async def save_quiz_response(response: QuizResponse):
         return {"message": "Responses saved successfully", "id": str(result.inserted_id)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/check-report-exist/", dependencies=[Depends(check_permissions)])
+async def check_report_exist(user_id: str):
+    try:
+        # Fetch user from the database
+        logger.info(f"Entered in generate report function")
+        logger.info(f"Received request for user_id: {user_id}")
+        # logger.info(f"Headers: {request.headers}")
+        report_name = user_id + ".pdf"
+        flg = check_blob_exist(blob_name=report_name)
+        if flg:
+            return {"message": "Report already generate", "message_code": "already_generated"}
+        else:
+            return {"message": "Report has not generated", "message_code": "not_generated"}
+
+    except HTTPException as http_exc:
+        raise http_exc  # Propagate HTTP exceptions as-is
+    except Exception as e:
+        logger.exception("Unexpected error occurred while processing the request")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
 
 @router.post("/generate-report/", dependencies=[Depends(check_permissions)])
 async def generate_student_report(user_id: str):
@@ -99,7 +134,7 @@ async def generate_student_report(user_id: str):
 async def get_report_download_link(user_id: str):
     try:
         report_name = user_id + ".pdf"
-        if check_blob_exists(report_name):
+        if check_blob_exist(report_name):
             print(f"Downloading report for user_id: {user_id}")
             report_download_link = generate_report_download_url(blob_name=report_name)
             logger.info(f"Report download link generated successfully")

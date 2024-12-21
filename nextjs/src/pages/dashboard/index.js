@@ -19,7 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import LogoutButton from "@/sections/auth/logout";
 import { useAuth } from '@/api/auth/auth-context';
 import { usePopover } from '@/hooks/use-popover';
-import {getReportDownloadLink, downloadReport} from "@/api/endpoints";
+import {CheckReportExist, downloadReport} from "@/api/endpoints";
 
 import {
     CartesianGrid,
@@ -108,12 +108,27 @@ const Dashboard = () => {
     };
 
     const { userProfile, accessToken } = useAuth();
+    const handleReportDownload = async () => {
+      try {
+        const reportExists = await CheckReportExist(userProfile?.username, accessToken);
+  
+        if (reportExists) {
+          await downloadReport(userProfile?.username, accessToken);
+          toast.success("Your report is being downloaded.");
+        } else {
+          toast.error("Report does not exist. Please complete the test to generate your report.");
+        }
+      } catch (error) {
+        toast.error("An error occurred while checking the report.");
+        console.error("Error checking report existence:", error);
+      }
+    };
 
     const stats = [
         {label: '1. Complete/Update Profile', value: 12},
         {label: '2. Complete Tests', value: 87},
         {label: '3. Download Report', value: 5},
-    ]; {/*{label: 'Book Session with Expert', value: 5},*/}
+        {label: '4. Book Session with Expert', value: 5}];
 
     // Personality data
     const data = [
@@ -156,12 +171,12 @@ const Dashboard = () => {
             </Typography>
             <Grid container spacing={3} sx={{ mt: 2 }}>
             {stats.map((stat, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
+                <Grid item xs={12} sm={6} md={3} key={index}>
                     <ListItemButton
                         onClick={() => {
                             if (index === 0) router.push('/user-profile');
                             else if (index === 1) router.push('/quiz-links');
-                            else if (index === 2) downloadReport(userProfile?.username, accessToken);
+                            else if (index === 2) handleReportDownload();
                         }}
                         sx={{
                             p: 2,
@@ -179,6 +194,7 @@ const Dashboard = () => {
                             {index === 0 && <AccountCircle fontSize="large" color="primary" />}
                             {index === 1 && <Assessment fontSize="large" color="primary" />}
                             {index === 2 && <CloudDownload fontSize="large" color="primary" />}
+                            {index === 3 && <PsychologyAltIcon fontSize="large" color="primary" />}
                         </Typography>
                     </ListItemButton>
                 </Grid>

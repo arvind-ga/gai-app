@@ -10,7 +10,6 @@ from gai_report.common_fn.gpt4_resp import *
 
 from app.components.logger import logger
 from app.db.mongoClient import async_database
-from app.components.logger import logger
 from uuid import uuid4
 
 student_score_collection = async_database.student_score  # Get the collection from the database
@@ -26,7 +25,7 @@ async def generate_report(user_detail):
     user_email = user_detail.get("email") #"check1234@gmail.com"
     logger.info(f"user email fetched successfully")
     check1 = await get_dfs(user_email)
-    logger.info(f"Everything fine till, check1 = await get_dfs{check1}")
+    # logger.info(f"Everything fine till, check1 = await get_dfs{check1}")
     print("check1:", check1)
     dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = check1 #await db_main(user_email)
     print("user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3:::", user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3)
@@ -38,7 +37,7 @@ async def generate_report(user_detail):
     student_details["student_school"] = user_detail["school_name"]
     student_details["student_email"] = user_detail["email"]
     print("Student DETAILS::", student_details)
-    logger.info(f"Student info created successfully {student_details}")
+    # logger.info(f"Student info created successfully {student_details}")
     ################# Student Personality from Model ##############
     # df1_model_params_list1 = [i[4:] for i in df1_model_params_list]
     # df1m = dfr1[df1_model_params_list1]

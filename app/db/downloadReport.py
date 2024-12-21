@@ -17,18 +17,23 @@ account_key = os.getenv("account_key")
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_client = blob_service_client.get_container_client(container_name)
 
-# # Function to generate a SAS URL for a given file
-# def generate_report_download_url(account_name= account_name, blob_name="arvind1.pdf", container_name=container_name, account_key=account_key):
-#     sas_token = generate_blob_sas(
-#         account_name="account_name",
-#         container_name=container_name,
-#         blob_name=blob_name,
-#         account_key = account_key,
-#         permission=BlobSasPermissions(read=True),
-#         expiry=datetime.now(timezone.utc) + timedelta(hours=24)
-#     )
-#     blob_url = f"https://{account_name}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
-# Generate SAS token
+# def check_blob_exist(account_name= account_name, blob_name="arvind1.pdf", container_name=container_name, account_key=account_key):
+#     # Initialize the BlobServiceClient
+#     blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
+#     container_client = blob_service_client.get_container_client(container_name)
+    
+#     # Check if the blob exists
+#     blob_exists = container_client.get_blob_client(blob_name).exists()
+
+#     if not blob_exists:
+#         print("Blob exist")
+#         logger.info("Blob Exist")
+#         return True
+#     else:
+#         print("Blob does not exist")
+#         logger.info("Blob does not  Exist")
+#         return False
+
 def generate_report_download_url(account_name= account_name, blob_name="arvind1.pdf", container_name=container_name, account_key=account_key):
     sas_token = generate_blob_sas(
     account_name=account_name,
@@ -48,7 +53,7 @@ def generate_report_download_url(account_name= account_name, blob_name="arvind1.
 
 
 # Initialize Azure BlobServiceClient
-def check_blob_exists(blob_name: str) -> bool:
+def check_blob_exist(blob_name: str) -> bool:
     """
     Check if the blob exists in the container.
     """

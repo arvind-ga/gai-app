@@ -1,44 +1,101 @@
-import React, { useState } from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import { Box, Typography, Button, Container, Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/api/auth/auth-context';
-import { GenerateReport } from '@/api/endpoints';
-import { downloadReport} from "@/api/endpoints";
+import { checkQuizResponseExist, GenerateReport, downloadReport } from '@/api/endpoints';
+import { checkReportExist } from '@/api/endpoints';
+import toast from 'react-hot-toast';
 
 export default function QuizLinks() {
     const router = useRouter(); // Initialize the router object
     const [reportGenerating, setReportGenerating] = useState(false);
+    const [reportExists, setReportExists] = useState(false);  // Define the reportExists state
     const [reportGenerated, setReportGenerated] = useState(false);
+    const [submittedQuizzes, setSubmittedQuizzes] = useState({});
     const { userProfile, accessToken } = useAuth();
 
-    const navigateTo = (quizId) => {
-        if (quizId) {
-            router.push(`/quiz?id=${quizId}`);
-        } else {
-            console.error("Quiz ID is required to navigate");
+    // Verify if the report exists
+    useEffect(() => {
+        const verifyReportExistence = async () => {
+            try {
+                const response = await checkReportExist(userProfile?.username, accessToken);
+                if (response?.message_code === "already_generated") {
+                    setReportExists(true);
+                } else {
+                    setReportExists(false);
+                }
+            } catch (error) {
+                toast.error("Error checking report existence. Please try again later.");
+                console.error("Error checking report existence:", error);
+            }
+        };
+    
+        if (userProfile?.username && accessToken) {
+            verifyReportExistence();
+        }
+    }, [userProfile, accessToken]);
+
+    // Check quiz submission status for all quizzes
+    useEffect(() => {
+        const checkAllQuizzes = async () => {
+            const quizIds = ['1', '2', '3', '4'];
+            const statuses = {};
+
+            for (const quizId of quizIds) {
+                try {
+                    const response = await checkQuizResponseExist(quizId, userProfile?.username, accessToken);
+                    if (response?.message_code === "already_submitted") {
+                        statuses[quizId] = true;
+                    }
+                } catch (error) {
+                    console.error(`Error checking quiz ${quizId} submission status:`, error);
+                }
+            }
+
+            setSubmittedQuizzes(statuses);
+        };
+
+        if (userProfile?.username && accessToken) {
+            checkAllQuizzes();
+        }
+    }, [userProfile, accessToken]);
+    
+    const navigateTo = async (quizId) => {
+        if (!quizId) {
+            toast.error("Quiz ID is required to navigate.");
+            return;
+        }
+        try {
+            const response = await checkQuizResponseExist(quizId, userProfile?.username, accessToken);
+            console.log("Quiz response status", response)
+            if (response.message_code === "already_submitted") {
+                toast.success("You have already submitted this quiz:");
+            } else {
+                router.push(`/quiz?id=${quizId}`);
+            }
+        } catch (error) {
+            toast.error("Failed to fetch quiz submission status. Please try again.");
+            console.error("Error checking quiz submission status:", error);
         }
     };
 
     const handleGenerateReport = async () => {
-        setReportGenerating(true);
-        try {
-            console.log('Generating Student Report');
-            // const response = await GenerateReport(userProfile?.username);
-            console.log("User profile:", userProfile);
-            console.log("Access token:", accessToken);
-            const response = await GenerateReport(userProfile?.username, accessToken);
-            console.log('Report generated successfully:', response);
-        } catch (error) {
-            console.error('Error while generating report:', error);
-            setReportGenerating(false);
-            // Optionally show a Snackbar with error information
+        if (reportExists) {
+            toast.info("Your report is already generated. Please download it.");
+            return;
         }
 
-        // Simulate report generation with a delay
-        setTimeout(() => {
+        setReportGenerating(true);
+        try {
+            await GenerateReport(userProfile?.username, accessToken);
+            setReportExists(true);
+            toast.success("Report generated successfully. You can now download it.");
+        } catch (error) {
+            toast.error("Failed to generate report. Please try again.");
+            console.error("Error while generating report:", error);
+        } finally {
             setReportGenerating(false);
-            setReportGenerated(true);
-        }, 10000); // Simulate 10-second delay
+        }
     };
 
     return (
@@ -57,71 +114,43 @@ export default function QuizLinks() {
                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                 }}
             >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigateTo('1')} // Navigate to Quiz Test 1
-                    sx={{ textTransform: 'none', padding: '10px' }}
-                >
-                    Quiz Test 1 (30 Min)
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigateTo('2')} // Navigate to Quiz Test 2
-                    sx={{ textTransform: 'none', padding: '10px' }}
-                >
-                    Quiz Test 2 (30 Min)
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigateTo('3')} // Navigate to Quiz Test 3
-                    sx={{ textTransform: 'none', padding: '10px' }}
-                >
-                    Quiz Test 3 (45 Min)
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigateTo('4')} // Navigate to Quiz Test 4
-                    sx={{ textTransform: 'none', padding: '10px' }}
-                >
-                    Quiz Test 4 (30 Min): Optional
-                </Button>
+                {['1', '2', '3', '4'].map((quizId) => (
+                    <Button
+                        key={quizId}
+                        variant="contained"
+                        color={submittedQuizzes[quizId] ? 'info' : 'primary'}
+                        onClick={() => navigateTo(quizId)}
+                        sx={{
+                            textTransform: 'none',
+                            padding: '10px',
+                            backgroundColor: submittedQuizzes[quizId] ? '#90caf9' : undefined,
+                            color: submittedQuizzes[quizId] ? '#fff' : undefined,
+                        }}
+                    >
+                        {`Quiz Test ${quizId} (${quizId === '3' ? '45 Min' : '30 Min'})`}
+                        {quizId === '4' ? ': Optional' : ''}
+                    </Button>
+                ))}
                 <Button
                     variant="contained"
                     color="secondary"
                     onClick={handleGenerateReport}
-                    disabled={reportGenerating}
+                    disabled={reportGenerating || reportExists}
                     sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}
                 >
-                    Generate Report
+                    {reportGenerating ? 'Generating Report...' : 'Generate Report'}
                 </Button>
-                {reportGenerated && (
-                    
+                {reportExists && (
                     <Button
-                        onClick={() => downloadReport(userProfile?.username, accessToken)} 
+                        onClick={() => downloadReport(userProfile?.username, accessToken)}
                         variant="outlined"
                         color="success"
                         sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}
-                        //href="/path-to-report.pdf" // Replace with the actual report file path
-                        download
                     >
                         Download Report
                     </Button>
                 )}
             </Box>
-            <Snackbar
-                open={reportGenerating}
-                autoHideDuration={10000}
-                onClose={() => setReportGenerating(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert severity="info" sx={{ width: '100%' }}>
-                    Your report is being generated. Download after 5-10 minutes.
-                </Alert>
-            </Snackbar>
-        </Container>    
+        </Container>
     );
 }
