@@ -87,6 +87,19 @@ export default function QuizLinks() {
 
         setReportGenerating(true);
         try {
+            const [response1, response2, response3] = await Promise.all([
+                checkQuizResponseExist("1", userProfile?.username, accessToken),
+                checkQuizResponseExist("2", userProfile?.username, accessToken),
+                checkQuizResponseExist("3", userProfile?.username, accessToken),
+            ]);
+            if (!(  response1?.message_code === "already_submitted" &&
+                    response2?.message_code === "already_submitted" &&
+                    response3?.message_code === "already_submitted"
+                )
+            ) {
+                toast.error("Please complete all quizzes to generate the report.");
+                return;
+            }
             await GenerateReport(userProfile?.username, accessToken);
             setReportExists(true);
             toast.success("Report generated successfully. You can now download it.");

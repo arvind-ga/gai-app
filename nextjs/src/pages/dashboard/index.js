@@ -7,6 +7,7 @@ import School from '@mui/icons-material/School'; // Exam Tests Icon
 import Assessment from '@mui/icons-material/Assessment'; // Exam Report Icon
 import CloudDownload from '@mui/icons-material/CloudDownload'; // Download Icon
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt'; //Guide Icon
+import DuoIcon from '@mui/icons-material/Duo';
 import ListItemButton from '@mui/material/ListItemButton';
 import {Box, Button, Grid, Paper, Typography} from '@mui/material';
 import popover from '@mui/material/Popover';
@@ -126,8 +127,8 @@ const Dashboard = () => {
 
     const stats = [
         {label: '1. Complete/Update Profile', value: 12},
-        {label: '2. Complete Tests', value: 87},
-        {label: '3. Download Report', value: 5},
+        {label: '2. Tests & Report', value: 87},
+        // {label: '3. Top Recommendation', value: 5},
         {label: '4. Book Session with Expert', value: 5}];
 
     // Personality data
@@ -171,7 +172,7 @@ const Dashboard = () => {
             </Typography>
             <Grid container spacing={3} sx={{ mt: 2 }}>
             {stats.map((stat, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+                <Grid item xs={12} sm={6} md={4} key={index}>
                     <ListItemButton
                         onClick={() => {
                             if (index === 0) router.push('/user-profile');
@@ -193,8 +194,9 @@ const Dashboard = () => {
                         <Typography component="p" variant="h4">
                             {index === 0 && <AccountCircle fontSize="large" color="primary" />}
                             {index === 1 && <Assessment fontSize="large" color="primary" />}
-                            {index === 2 && <CloudDownload fontSize="large" color="primary" />}
-                            {index === 3 && <PsychologyAltIcon fontSize="large" color="primary" />}
+                            {index === 2 && <DuoIcon fontSize="large" color="primary" />}
+                            {/* {index === 2 && <CloudDownload fontSize="large" color="primary" />} */}
+                            
                         </Typography>
                     </ListItemButton>
                 </Grid>
