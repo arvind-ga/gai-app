@@ -60,9 +60,13 @@ export default function QuizLinks() {
         }
     }, [userProfile, accessToken]);
     
-    const navigateTo = async (quizId) => {
+    const navigateTo = async (quizId, user_id) => {
         if (!quizId) {
             toast.error("Quiz ID is required to navigate.");
+            return;
+        }
+        if (!user_id) {
+            toast.error("Please complete your profile to give quiz tests");
             return;
         }
         try {
@@ -71,7 +75,7 @@ export default function QuizLinks() {
             if (response.message_code === "already_submitted") {
                 toast.success("You have already submitted this quiz:");
             } else {
-                router.push(`/quiz?id=${quizId}`);
+                router.push(`/quiz?id=${quizId}&user_id=${user_id}`);
             }
         } catch (error) {
             toast.error("Failed to fetch quiz submission status. Please try again.");
@@ -132,7 +136,7 @@ export default function QuizLinks() {
                         key={quizId}
                         variant="contained"
                         color={submittedQuizzes[quizId] ? 'info' : 'primary'}
-                        onClick={() => navigateTo(quizId)}
+                        onClick={() => navigateTo(quizId, userProfile?.username)}
                         sx={{
                             textTransform: 'none',
                             padding: '10px',

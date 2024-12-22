@@ -155,14 +155,17 @@ export const updateMessageSettings = async ({section, settings, accessToken}) =>
     return settings;
 };
 
-export const fetchQuiz = async (quiz_id, accessToken) => {
+export const fetchQuiz = async (quiz_id, user_id, accessToken) => {
     try {
-        const url = `${API_BASE_URL}/quiz/${quiz_id}`;
+        const url = `${API_BASE_URL}/quiz/`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
 
-        const response = await axios.get(url, {
-        headers: jsonHeader(accessToken)
-    });
+        const response = await axios.get(url,
+            {
+            params: { quiz_id, user_id }, // Send user_id as query parameter
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+                }
+            );
         console.log("Received quiz data:", response.data);  // Log response data
         return response.data;
     } catch (error) {
@@ -210,6 +213,7 @@ export const checkReportExist = async (user_id, accessToken) => {
     try {
         console.log("User ID:", user_id);
         console.log("Access token:", accessToken);
+
 
         if (!user_id) throw new Error("user_id is required");
         if (!accessToken) throw new Error("Access token is required");

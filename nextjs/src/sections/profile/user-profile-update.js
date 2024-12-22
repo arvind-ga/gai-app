@@ -43,7 +43,7 @@ const streamsByStandard = {
     "11": ["Arts", "Science-Maths", "Science-Bio", "Commerce", "Others"],
     "12": ["Arts", "Science-Maths", "Science-Bio", "Commerce", "Others"],
     "Undergraduation": ["Technical", "Non-technical", "Medical", "Operations", "Others"],
-    "Post graduation": ["Technical", "Non-technical", "Medical", "Operations", "Others"],
+    "Postgraduation": ["Technical", "Non-technical", "Medical", "Operations", "Others"],
     "Job": ["Technical", "Non-technical", "Medical", "Operations", "Others"],
 };
 

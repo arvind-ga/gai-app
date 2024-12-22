@@ -50,8 +50,6 @@ def generate_report_download_url(account_name= account_name, blob_name="arvind1.
     return {"url":blob_url}
     # blob_url
 
-
-
 # Initialize Azure BlobServiceClient
 def check_blob_exist(blob_name: str) -> bool:
     """

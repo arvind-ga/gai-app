@@ -133,22 +133,22 @@ const Dashboard = () => {
 
     // Personality data
     const data = [
-        {name: 'ENFJ', uv: 11},
-        {name: 'ENFP', uv: 13},
-        {name: 'ENTJ', uv: 5},
-        {name: 'ENTP', uv: 9},
-        {name: 'ESFJ', uv: 5.5},
-        {name: 'ESFP', uv: 2.5},
-        {name: 'ESTJ', uv: 1.5},
-        {name: 'ESTP', uv: 5},
-        {name: 'INFJ', uv: 12},
-        {name: 'INFP', uv: 2.5},
-        {name: 'INTJ', uv: 3},
-        {name: 'INTP', uv: 8},
-        {name: 'ISFJ', uv: 4},
-        {name: 'ISFP', uv: 15},
-        {name: 'ISTJ', uv: 4},
-        {name: 'ISTP', uv: 3},
+        {name: 'ENFJ', personality_score: 11},
+        {name: 'ENFP', personality_score: 13},
+        {name: 'ENTJ', personality_score: 5},
+        {name: 'ENTP', personality_score: 9},
+        {name: 'ESFJ', personality_score: 5.5},
+        {name: 'ESFP', personality_score: 2.5},
+        {name: 'ESTJ', personality_score: 1.5},
+        {name: 'ESTP', personality_score: 5},
+        {name: 'INFJ', personality_score: 12},
+        {name: 'INFP', personality_score: 2.5},
+        {name: 'INTJ', personality_score: 3},
+        {name: 'INTP', personality_score: 8},
+        {name: 'ISFJ', personality_score: 4},
+        {name: 'ISFP', personality_score: 15},
+        {name: 'ISTJ', personality_score: 4},
+        {name: 'ISTP', personality_score: 3},
         // Add more months as needed
     ];
 
@@ -221,7 +221,7 @@ const Dashboard = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="uv">
+                    <Bar dataKey="personality_score">
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}

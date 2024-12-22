@@ -18,6 +18,7 @@ from app.db.uploadReport import upload_report
 from app.routers.users import user_exists
 from fastapi.encoders import jsonable_encoder
 from gai_report.main_eng_db_v1 import generate_report
+from app.db.stream_mapping import stream_mapping
 
 router = APIRouter()  # router instance
 user_collection = async_database.users  # Get the collection from the database
@@ -25,14 +26,24 @@ quiz_collection = async_database.quizes  # Get the collection from the database
 quiz_response_collection = async_database.quiz_response  # Get the collection from the database
 
 
-@router.get("/quiz/{quiz_id}", dependencies=[Depends(check_permissions)])
-async def get_quiz(quiz_id: str):
+@router.get("/quiz/", dependencies=[Depends(check_permissions)])
+async def get_quiz(quiz_id: str, user_id: str):
     print(f"Fetching quiz with ID: {quiz_id}")
-    print(f"Received request for quiz_id: {quiz_id}")
-    quiz = await quiz_collection.find_one({"id": quiz_id})
+    print(f"Received request for user_id: {quiz_id}")
+    user = await user_collection.find_one({"username": user_id})
+    if not user:
+        logger.error(f"User with id {user_id} not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    if (quiz_id=="3"):
+        quiz_id_final = f"{quiz_id}_{user.get('standard')}_{stream_mapping.get(user.get('stream'), 'allsubj')}"
+    else:
+        quiz_id_final = quiz_id
+    logger.info(f"Quiz_final_id::", quiz_id_final)
+    quiz = await quiz_collection.find_one({"id": quiz_id_final})
+    logger.info(f"Quiz fetched, detail:", quiz)
     logger.info(f"Quiz has been fetched successfully", jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]}))
-    if not quiz:
-        raise HTTPException(status_code=404, detail=f"Quiz with ID {quiz_id} not found")
+    if not quiz_id or not user_id:
+        raise HTTPException(status_code=422, detail="Invalid query parameters")
     print("Quiz Details:::", jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]}))
     return jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]})
 
@@ -42,7 +53,12 @@ async def check_quiz_response_exist(quiz_id: str, user_id: str):
         # Debugging: Log the incoming response
         print("Check quiz response for user_id", user_id)
         # Save user response in the database
-        result = await quiz_response_collection.find_one({"username": user_id, "quizId": quiz_id})
+        user = await user_collection.find_one({"username": user_id})
+        if (quiz_id=="3"):
+            quiz_id_final = f"{quiz_id}_{user.get('standard')}_{stream_mapping.get(user.get('stream'), 'allsubj')}"
+        else:
+            quiz_id_final = quiz_id
+        result = await quiz_response_collection.find_one({"username": user_id, "quizId": quiz_id_final})
         if result:
             return {"message": "You have already submitted the quiz", "message_code": "already_submitted"}
         else:
@@ -102,6 +118,7 @@ async def generate_student_report(user_id: str):
             "full_name": str(user.get("full_name")),
             "standard": str(user.get("standard")),
             "school_name": str(user.get("school_name")),
+            "stream": str(user.get("stream")),
         }
         logger.info(f"Report being generated with details: {user_detail_dict}")
 

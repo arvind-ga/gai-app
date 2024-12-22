@@ -24,10 +24,10 @@ async def generate_report(user_detail):
     logger.info(f"Entered generate_report function {user_detail}")
     user_email = user_detail.get("email") #"check1234@gmail.com"
     logger.info(f"user email fetched successfully")
-    check1 = await get_dfs(user_email)
+    all_dfs = await get_dfs(user_email) #, user_detail.get("standard"), user_detail.get("stream"))
     # logger.info(f"Everything fine till, check1 = await get_dfs{check1}")
-    print("check1:", check1)
-    dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = check1 #await db_main(user_email)
+    print("check1:", all_dfs)
+    dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = all_dfs #await db_main(user_email)
     print("user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3:::", user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3)
     ################### Student's vars ################
     student_details = {}

@@ -32,6 +32,7 @@ const QuizPage = ({ quiz_id }) => {
     const [responses, setResponses] = useState({});
     const [submissionMessage, setSubmissionMessage] = useState('');
     const [quiz, setQuiz] = useState(null);
+    const [incompleteQuestions, setIncompleteQuestions] = useState([]);
 
     const {
         data: user,
@@ -42,43 +43,63 @@ const QuizPage = ({ quiz_id }) => {
     });
 
     console.log("Fetching quiz with quiz id", quiz_id);
-    const {
-        data: quizData,
+    // const {
+    //     data: quizData,
+    //     isLoading: isQuizLoading,
+    //     isError: isQuizError,
+    // } = useQuery(['quiz', quiz_id], () => fetchQuiz(quiz_id, user?.username, accessToken), {
+    //     enabled: !!quiz_id,
+    //     onSuccess: (data) => setQuiz(data),
+    // });
+    const { data: quizData, 
         isLoading: isQuizLoading,
-        isError: isQuizError,
-    } = useQuery(['quiz', quiz_id], () => fetchQuiz(quiz_id, accessToken), {
-        enabled: !!quiz_id,
-        onSuccess: (data) => setQuiz(data),
-    });
+        isError: isQuizError, } = useQuery(
+        ['quiz', quiz_id],
+        () => fetchQuiz(quiz_id, user?.username, accessToken),
+        { enabled: !!quiz_id && !!user?.username,
+            onSuccess: (data) => setQuiz(data),
+         }
+    );
     console.log("Fetched quiz with quiz id", quiz_id);
 
     const handleSubmit = async () => {
-        if (!quiz || Object.keys(responses).length < quiz.questions.length) {
-            toast.error('Please answer all questions before submitting.');
-            return; // Ensure the function exits if the condition is true
+        if (!quiz) return;
+
+        // Find unanswered questions
+        const unanswered = quiz.questions
+            .filter((question) => !responses[question.id])
+            .map((q) => q.id);
+
+        if (unanswered.length > 0) {
+            toast.error("Please answer all questions before submitting.");
+            setIncompleteQuestions(unanswered); // Highlight incomplete questions
+            return;
         }
 
+        setIncompleteQuestions([]); // Clear any previous highlights
+
         const submissionData = {
-            username: user?.username || '',
-            email: user?.email || '',
-            user_id: user?._id || '',
-            mobile_number: user?.mobile_number || '',
+            username: user?.username || "",
+            email: user?.email || "",
+            user_id: user?._id || "",
+            mobile_number: user?.mobile_number || "",
             quizId: quiz?.id || quiz_id,
             responses,
         };
 
         try {
             const result = await submitQuizResponse(submissionData, accessToken);
-            toast.success('Submission successful!');
-            // router.push('/quiz-links');
+            toast.success("Submission successful!");
             setTimeout(() => {
-                router.push('/quiz-links');
+                router.push("/quiz-links");
             }, 1000);
-            console.log('Submission successful:', result);
+            console.log("Submission successful:", result);
         } catch (error) {
-            console.error('Error submitting quiz response:', error);
-            toast.error('Fail to submit quiz, please try again!');
-            setSubmissionMessage('Failed to submit quiz. Please check your answers or try again.');
+            console.error("Error submitting quiz response:", error);
+            toast.error("Failed to submit quiz, please try again!");
+            setSubmissionMessage(
+                "Failed to submit quiz. Please check your answers or try again."
+            );
         }
     };
 
@@ -90,7 +111,7 @@ const QuizPage = ({ quiz_id }) => {
             {/* User Details Card */}
             <Card sx={{ mb: 4, borderRadius: '16px', boxShadow: 3, padding: 3 }}>
                 <CardHeader
-                    title={<Typography variant="h4">Quiz: {quiz?.id || "Loading..."}</Typography>}
+                    title={<Typography variant="h4">Quiz: {quiz?.id.charAt(0) || "Loading..."}</Typography>}
                 />
                 <CardContent>
                     <Grid container spacing={3}>
@@ -119,10 +140,8 @@ const QuizPage = ({ quiz_id }) => {
             </Card>
 
             {/* Quiz Section */}
-            <Card sx={{ borderRadius: '16px', boxShadow: 3 }}>
-                <CardHeader
-                    title={<Typography variant="h4">Quiz Questions</Typography>}
-                />
+            <Card sx={{ borderRadius: "16px", boxShadow: 3 }}>
+                <CardHeader title={<Typography variant="h4">Quiz Questions</Typography>} />
                 <CardContent>
                     {quiz.questions.map((question) => (
                         <Box
@@ -130,16 +149,18 @@ const QuizPage = ({ quiz_id }) => {
                             sx={{
                                 marginBottom: 4,
                                 padding: 4,
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                backgroundColor: '#f9f9f9',
+                                border: `2px solid ${
+                                    incompleteQuestions.includes(question.id) ? red[500] : "#e0e0e0"
+                                }`,
+                                borderRadius: "8px",
+                                backgroundColor: "#f9f9f9",
                             }}
                         >
                             <Typography variant="h6" sx={{ marginBottom: 2 }}>
                                 {question.question}
                             </Typography>
                             <RadioGroup
-                                value={responses[question.id] || ''}
+                                value={responses[question.id] || ""}
                                 onChange={(e) =>
                                     setResponses({ ...responses, [question.id]: e.target.value })
                                 }

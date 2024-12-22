@@ -8,6 +8,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from gai_report.common_fn.parameter_mapping import *
 from gai_report.eng_fn.eng_report_generate_fn import *
+from app.db.stream_mapping import stream_mapping
+from app.components.logger import logger
 
 
 # from app.components.logger import logger
@@ -32,7 +34,7 @@ async_database = async_mdb_client['fastapi_db']  # Database name in MongoDB for 
 
 
 # Function to validate connection
-async def fetch_quiz_resp(user_email, quiz_id=1):
+async def fetch_quiz_resp(user_email, quiz_id="1"):
     try:
         # Attempt to count documents in a specific collection, e.g., 'test_collection'
         count = await async_database['test_collection'].count_documents({})
@@ -46,7 +48,7 @@ async def fetch_quiz_resp(user_email, quiz_id=1):
         return None
 
 # Function to validate connection
-async def fetch_quiz(quiz_id=1):
+async def fetch_quiz(quiz_id="1"):
     try:
         # Attempt to count documents in a specific collection, e.g., 'test_collection'
         count = await async_database['test_collection'].count_documents({})
@@ -61,25 +63,26 @@ async def fetch_quiz(quiz_id=1):
         return None
 
 # async def main(user_email):
-async def get_dfs(user_email):
+async def get_dfs(user_email): #, standard, stream):
 
     # user_email = "mangalsikarwar@gmail.com"
     user_collection = async_database['users']
 
     # Check if user exists
-    flg = await user_collection.find_one({"email": user_email})  # Await the find_one call
-    if flg:
+    user = await user_collection.find_one({"email": user_email})  # Await the find_one call
+    if user:
         print("User with email {} exist".format(user_email))
-
+        quiz_idd = "3_" + str(user.get("standard")) + "_" + str(stream_mapping.get(user.get("stream")))
+        logger.info(f"quiz_idd:::", quiz_idd)
         # Fetch quiz responses
-        q1_resp1 = await fetch_quiz_resp(user_email, quiz_id=1)  # Await the fetch
-        q1_resp2 = await fetch_quiz_resp(user_email, quiz_id=2)
-        q1_resp3 = await fetch_quiz_resp(user_email, quiz_id=3)
-        q1_resp4 = await fetch_quiz_resp(user_email, quiz_id=1)
+        q1_resp1 = await fetch_quiz_resp(user_email, quiz_id="1")  # Await the fetch
+        q1_resp2 = await fetch_quiz_resp(user_email, quiz_id="2")
+        q1_resp3 = await fetch_quiz_resp(user_email, quiz_id=quiz_idd)
+        q1_resp4 = await fetch_quiz_resp(user_email, quiz_id="1")
 
         # Fetch quiz for correct Answers
-        quiz2 = await fetch_quiz(quiz_id=2)
-        quiz3 = await fetch_quiz(quiz_id=3)
+        quiz2 = await fetch_quiz(quiz_id="2")
+        quiz3 = await fetch_quiz(quiz_id=quiz_idd)
         print("quiz2:::", quiz2)
         print("quiz3:::", quiz3)
         quiz2q = quiz2.get("questions")
