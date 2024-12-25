@@ -2,7 +2,7 @@ import React from "react";
 import useAuthenticatedRoute from "@/hooks/use-authenticated-route";
 import {Typography} from "@mui/material";
 //import {UserProfile} from "@/sections/profile/user-profile-update";
-import QuizLinks from "@/sections/quizes/quiz-links";
+import QuizLinks from "@/sections/quizzes/quiz-links";
 
 function QuizLinksInfo() {
     return (

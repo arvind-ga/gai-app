@@ -34,14 +34,13 @@ import { getProfile, updateUser } from '@/api/endpoints';
 import { useAuth } from '@/api/auth/auth-context';
 import { useRouter } from 'next/router';
 
-const standards = ["8", "9", "10", "11", "12", "Undergraduation", "Post graduation", "Job"];
+const standards = ["9", "10", "11", "12", "Undergraduation", "Post graduation", "Job"];
 const mediums = ["English"];
 const streamsByStandard = {
-    "8": ["All subjects"],
     "9": ["All subjects"],
     "10": ["All subjects"],
-    "11": ["Arts", "Science-Maths", "Science-Bio", "Commerce", "Others"],
-    "12": ["Arts", "Science-Maths", "Science-Bio", "Commerce", "Others"],
+    "11": ["Science-Maths-Computer", "Science-Maths-PhysEdu", "Science-Maths-Bio", "Science-Bio-Computer", "Science-Bio-PhysEdu", "Commerce-Maths", "Commerce-Computer", "Commerce-PhysEdu", "Arts", "Others"],
+    "12": ["Science-Maths-Computer", "Science-Maths-PhysEdu", "Science-Maths-Bio", "Science-Bio-Computer", "Science-Bio-PhysEdu", "Commerce-Maths", "Commerce-Computer", "Commerce-PhysEdu", "Arts", "Others"],
     "Undergraduation": ["Technical", "Non-technical", "Medical", "Operations", "Others"],
     "Postgraduation": ["Technical", "Non-technical", "Medical", "Operations", "Others"],
     "Job": ["Technical", "Non-technical", "Medical", "Operations", "Others"],

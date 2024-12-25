@@ -38,7 +38,7 @@ import {
     YAxis
 } from 'recharts';
 import useAuthenticatedRoute from "@/hooks/use-authenticated-route.js";
-import QuizLinks from "@/sections/quizes/quiz-links";
+import QuizLinks from "@/sections/quizzes/quiz-links";
 
 export const SettingsPopover = ({ anchorEl, onClose, open }) => {
   const { userProfile } = useAuth();

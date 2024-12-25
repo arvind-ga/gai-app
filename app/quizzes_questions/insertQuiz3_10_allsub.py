@@ -610,4 +610,4 @@ quiz_data = {
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(validate_mongodb_connection())
-    async_database.quizes.insert_one(quiz_data)
+    async_database.quizzes.insert_one(quiz_data)

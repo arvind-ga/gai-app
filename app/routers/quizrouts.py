@@ -22,7 +22,7 @@ from app.db.stream_mapping import stream_mapping
 
 router = APIRouter()  # router instance
 user_collection = async_database.users  # Get the collection from the database
-quiz_collection = async_database.quizes  # Get the collection from the database
+quiz_collection = async_database.quizzes  # Get the collection from the database
 quiz_response_collection = async_database.quiz_response  # Get the collection from the database
 
 
