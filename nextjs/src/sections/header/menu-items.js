@@ -7,6 +7,9 @@ import ExtensionIcon from '@mui/icons-material/Extension';
 import PolicyIcon from '@mui/icons-material/Policy';
 import React from "react";
 import {ChatGptIcon} from "@/theme/menu-icons";
+// import ChatIcon from '@mui/icons-material/Chat';
+// import { Chat as ChatIcon } from "@/theme/menu-icons/Chat";
+import MessageIcon from '@mui/icons-material/Message';
 import BusinessIcon from '@mui/icons-material/Business';
 
 const iconStyle = {height: 16, width: 16, mb: "-3px", mr: 0.5};
@@ -21,7 +24,8 @@ export const menuItems = [
         authenticated: true
     },
     {
-    icon: <ChatGptIcon width={20} height={20} sx={iconStyle} />, // Using ChatGPT icon directly
+
+    icon: <MessageIcon width={20} height={20} sx={iconStyle} />, // Using ChatGPT icon directly
     label: "GoAIChat",
     tooltip: "AI Guide", // Updated tooltip to match functionality
     path: "/extensions/chatgpt", // Direct path to ChatGPT

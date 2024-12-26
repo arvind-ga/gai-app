@@ -7,6 +7,7 @@ import School from '@mui/icons-material/School'; // Exam Tests Icon
 import Assessment from '@mui/icons-material/Assessment'; // Exam Report Icon
 import CloudDownload from '@mui/icons-material/CloudDownload'; // Download Icon
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt'; //Guide Icon
+import DuoIcon from '@mui/icons-material/Duo';
 import ListItemButton from '@mui/material/ListItemButton';
 import {Box, Button, Grid, Paper, Typography} from '@mui/material';
 import popover from '@mui/material/Popover';
@@ -19,7 +20,7 @@ import ListItemText from '@mui/material/ListItemText';
 import LogoutButton from "@/sections/auth/logout";
 import { useAuth } from '@/api/auth/auth-context';
 import { usePopover } from '@/hooks/use-popover';
-import {getReportDownloadLink, downloadReport} from "@/api/endpoints";
+import {CheckReportExist, downloadReport} from "@/api/endpoints";
 
 import {
     CartesianGrid,
@@ -37,7 +38,7 @@ import {
     YAxis
 } from 'recharts';
 import useAuthenticatedRoute from "@/hooks/use-authenticated-route.js";
-import QuizLinks from "@/sections/quizes/quiz-links";
+import QuizLinks from "@/sections/quizzes/quiz-links";
 
 export const SettingsPopover = ({ anchorEl, onClose, open }) => {
   const { userProfile } = useAuth();
@@ -108,31 +109,46 @@ const Dashboard = () => {
     };
 
     const { userProfile, accessToken } = useAuth();
+    const handleReportDownload = async () => {
+      try {
+        const reportExists = await CheckReportExist(userProfile?.username, accessToken);
+  
+        if (reportExists) {
+          await downloadReport(userProfile?.username, accessToken);
+          toast.success("Your report is being downloaded.");
+        } else {
+          toast.error("Report does not exist. Please complete the test to generate your report.");
+        }
+      } catch (error) {
+        toast.error("An error occurred while checking the report.");
+        console.error("Error checking report existence:", error);
+      }
+    };
 
     const stats = [
         {label: '1. Complete/Update Profile', value: 12},
-        {label: '2. Complete Tests', value: 87},
-        {label: '3. Download Report', value: 5},
-    ]; {/*{label: 'Book Session with Expert', value: 5},*/}
+        {label: '2. Tests & Report', value: 87},
+        // {label: '3. Top Recommendation', value: 5},
+        {label: '3. Session Bookings', value: 5}];
 
     // Personality data
     const data = [
-        {name: 'ENFJ', uv: 11},
-        {name: 'ENFP', uv: 13},
-        {name: 'ENTJ', uv: 5},
-        {name: 'ENTP', uv: 9},
-        {name: 'ESFJ', uv: 5.5},
-        {name: 'ESFP', uv: 2.5},
-        {name: 'ESTJ', uv: 1.5},
-        {name: 'ESTP', uv: 5},
-        {name: 'INFJ', uv: 12},
-        {name: 'INFP', uv: 2.5},
-        {name: 'INTJ', uv: 3},
-        {name: 'INTP', uv: 8},
-        {name: 'ISFJ', uv: 4},
-        {name: 'ISFP', uv: 15},
-        {name: 'ISTJ', uv: 4},
-        {name: 'ISTP', uv: 3},
+        {name: 'ENFJ', personality_score: 11},
+        {name: 'ENFP', personality_score: 13},
+        {name: 'ENTJ', personality_score: 5},
+        {name: 'ENTP', personality_score: 9},
+        {name: 'ESFJ', personality_score: 5.5},
+        {name: 'ESFP', personality_score: 2.5},
+        {name: 'ESTJ', personality_score: 1.5},
+        {name: 'ESTP', personality_score: 5},
+        {name: 'INFJ', personality_score: 12},
+        {name: 'INFP', personality_score: 2.5},
+        {name: 'INTJ', personality_score: 3},
+        {name: 'INTP', personality_score: 8},
+        {name: 'ISFJ', personality_score: 4},
+        {name: 'ISFP', personality_score: 15},
+        {name: 'ISTJ', personality_score: 4},
+        {name: 'ISTP', personality_score: 3},
         // Add more months as needed
     ];
 
@@ -161,7 +177,7 @@ const Dashboard = () => {
                         onClick={() => {
                             if (index === 0) router.push('/user-profile');
                             else if (index === 1) router.push('/quiz-links');
-                            else if (index === 2) downloadReport(userProfile?.username, accessToken);
+                            else if (index === 2) router.push('/bookings');
                         }}
                         sx={{
                             p: 2,
@@ -178,7 +194,9 @@ const Dashboard = () => {
                         <Typography component="p" variant="h4">
                             {index === 0 && <AccountCircle fontSize="large" color="primary" />}
                             {index === 1 && <Assessment fontSize="large" color="primary" />}
-                            {index === 2 && <CloudDownload fontSize="large" color="primary" />}
+                            {index === 2 && <DuoIcon fontSize="large" color="primary" />}
+                            {/* {index === 2 && <CloudDownload fontSize="large" color="primary" />} */}
+                            
                         </Typography>
                     </ListItemButton>
                 </Grid>
@@ -203,7 +221,7 @@ const Dashboard = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="uv">
+                    <Bar dataKey="personality_score">
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}

@@ -1,18 +1,18 @@
 import React from "react";
 import useAuthenticatedRoute from "@/hooks/use-authenticated-route";
 import {Typography} from "@mui/material";
-//import {UserProfile} from "@/sections/profile/user-profile-update";
-import QuizLinks from "@/sections/quizzes/quiz-links";
+import BookingPage from "@/sections/bookings/session-bookings";
 
-function QuizLinksInfo() {
+
+function Bookings() {
     return (
         <>
             <Typography component="h1" variant="h4" gutterBottom>
-                Assessment Quizzes
+                Session Bookings
             </Typography>
-            <QuizLinks/>
+            <BookingPage/>
         </>
     );
 }
 
-export default useAuthenticatedRoute(QuizLinksInfo);
+export default useAuthenticatedRoute(Bookings);

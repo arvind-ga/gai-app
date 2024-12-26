@@ -1,5 +1,6 @@
 import axios from "axios";
 import {jsonHeader, staticBearerHeader} from "@/api/headers";
+import dayjs from 'dayjs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -155,24 +156,36 @@ export const updateMessageSettings = async ({section, settings, accessToken}) =>
     return settings;
 };
 
-// export const submitQuiz = async (quizData) => {
-//     const response = await axios.post(`${API_BASE_URL}/submit_quiz/`, {
-//         quizData
-//     }, {
-//         headers: staticBearerHeader,
-//     });
-
-//     return response.data;
-// };
-
-export const fetchQuiz = async (id, accessToken) => {
+export const fetchQuiz = async (quiz_id, user_id, accessToken) => {
     try {
-        const url = `${API_BASE_URL}/quiz/${id}`;
+        const url = `${API_BASE_URL}/quiz/`;
         console.log(`Making GET request to: ${url}`);  // Log the URL
 
-        const response = await axios.get(url, {
-        headers: jsonHeader(accessToken)
-    });
+        const response = await axios.get(url,
+            {
+            params: { quiz_id, user_id }, // Send user_id as query parameter
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+                }
+            );
+        console.log("Received quiz data:", response.data);  // Log response data
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching quiz:", error.response?.data || error.message);  // Log error details
+        throw error;
+    }
+};
+
+export const checkQuizResponseExist = async (quiz_id, user_id, accessToken) => {
+    try {
+        const url = `${API_BASE_URL}/check-quiz-response-exist/`;
+        console.log(`Making GET request to: ${url}`);  // Log the URL
+
+        const response = await axios.get(url,
+            {
+            params: { quiz_id, user_id }, // Send user_id as query parameter
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+                }
+            );
         console.log("Received quiz data:", response.data);  // Log response data
         return response.data;
     } catch (error) {
@@ -195,6 +208,29 @@ export const submitQuizResponse = async (responseData, accessToken) => {
     }
 };
 
+
+// Generate Report
+export const checkReportExist = async (user_id, accessToken) => {
+    try {
+        console.log("User ID:", user_id);
+        console.log("Access token:", accessToken);
+
+
+        if (!user_id) throw new Error("user_id is required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.get(`${API_BASE_URL}/check-report-exist/`, {
+            params: { user_id }, // Send user_id as query parameter
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+
+        console.log("Checking report exists or not js:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Please complete all the quiz:", error);
+        throw error;
+    }
+};
 
 // Generate Report
 export const GenerateReport = async (user_id, accessToken) => {
@@ -247,5 +283,50 @@ export const downloadReport = async (user_id, accessToken) => {
     } catch (error) {
         alert("Error, Report not generated. Please complete test and generate report then try again.");
         console.error("Error in downloading report:", error);
+    }
+};
+
+// Fetching Booking
+export const fetchBooking = async (username, accessToken) => {
+    try {
+        if (!username) throw new Error("username is required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.get(`${API_BASE_URL}/fetch-booking/`, {
+            params: { username }, // Corrected query parameter name
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+        console.log("Got response from fetchBooking:", response)
+        // Extract and return the booking_list
+        // Extract and return the booking_list
+        const bookingList = response.data?.booking_list; // Corrected path
+        if (!Array.isArray(bookingList)) {
+            throw new Error("Invalid response structure from API.");
+        }
+        return bookingList;
+    } catch (error) {
+        console.error("Error fetching bookings:", error);
+        throw error;
+    }
+};
+
+// Session Booking
+export const SessionBooking = async (username, dateTime, remark, accessToken) => {
+    try {
+        console.log("Inside SessionBooking endpoint")
+        if (!username || !dateTime || !remark) throw new Error("All fields are required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.post(`${API_BASE_URL}/booking/`, {
+            username,
+            dateTime: dayjs(dateTime).toISOString(), // Ensure ISO format
+            remark,
+        }, {
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        throw error;
     }
 };
