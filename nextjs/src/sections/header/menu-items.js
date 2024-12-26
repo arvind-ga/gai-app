@@ -24,7 +24,7 @@ export const menuItems = [
     },
     {
     icon: <MessageIcon width={20} height={20} sx={iconStyle} />, // Using ChatGPT icon directly
-    label: "GakudoGPT",
+    label: "GoAIChat",
     tooltip: "AI Guide", // Updated tooltip to match functionality
     path: "/extensions/chatgpt", // Direct path to ChatGPT
     authenticated: true
@@ -45,7 +45,7 @@ export const menuItems = [
     },
     {
         icon: <LoginIcon sx={iconStyle}/>,
-        label: "Login",
+        label: "Login/Register",
         tooltip: "Login Page",
         path: "/login",
         authenticated: false

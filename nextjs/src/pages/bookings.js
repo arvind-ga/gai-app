@@ -8,7 +8,7 @@ function Bookings() {
     return (
         <>
             <Typography component="h1" variant="h4" gutterBottom>
-                Bookings
+                Session Bookings
             </Typography>
             <BookingPage/>
         </>
