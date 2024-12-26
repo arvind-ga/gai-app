@@ -10,7 +10,6 @@ from gai_report.common_fn.gpt4_resp import *
 
 from app.components.logger import logger
 from app.db.mongoClient import async_database
-from app.components.logger import logger
 from uuid import uuid4
 
 student_score_collection = async_database.student_score  # Get the collection from the database
@@ -25,10 +24,10 @@ async def generate_report(user_detail):
     logger.info(f"Entered generate_report function {user_detail}")
     user_email = user_detail.get("email") #"check1234@gmail.com"
     logger.info(f"user email fetched successfully")
-    check1 = await get_dfs(user_email)
-    logger.info(f"Everything fine till, check1 = await get_dfs{check1}")
-    print("check1:", check1)
-    dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = check1 #await db_main(user_email)
+    all_dfs = await get_dfs(user_email) #, user_detail.get("standard"), user_detail.get("stream"))
+    # logger.info(f"Everything fine till, check1 = await get_dfs{check1}")
+    print("check1:", all_dfs)
+    dfr1, dfr2, dfr3, dfr4, dfa2, dfa3 = all_dfs #await db_main(user_email)
     print("user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3:::", user_detail, dfr1, dfr2, dfr3, dfr4, dfa2, dfa3)
     ################### Student's vars ################
     student_details = {}
@@ -38,7 +37,7 @@ async def generate_report(user_detail):
     student_details["student_school"] = user_detail["school_name"]
     student_details["student_email"] = user_detail["email"]
     print("Student DETAILS::", student_details)
-    logger.info(f"Student info created successfully {student_details}")
+    # logger.info(f"Student info created successfully {student_details}")
     ################# Student Personality from Model ##############
     # df1_model_params_list1 = [i[4:] for i in df1_model_params_list]
     # df1m = dfr1[df1_model_params_list1]
@@ -105,28 +104,14 @@ async def generate_report(user_detail):
     # print("NEW dict:::", reasoning_emotion_score_dict1)
 
     aptitude_scores = {}
-    aptitude_scores["Quantitative"] = subject_strength_dict.get("maths")
+    aptitude_scores["Quantitative"] = reasoning_emotion_score_dict1.get("aptitude")
     aptitude_scores["Logical"] = reasoning_emotion_score_dict1.get("logical")
     aptitude_scores["Situation"] = reasoning_emotion_score_dict1.get("situation")
     aptitude_scores["Verbal"] = reasoning_emotion_score_dict1.get("verbal")
     ############### Emotional Quotient #################
-    req_list = [
-        "t4_q31",
-        "t4_q32",
-        "t4_q33",
-        "t4_q34",
-        "t4_q35",
-        "t4_q36",
-        "t4_q37",
-        "t4_q38",
-        "t4_q39",
-        "t4_q40",
-        "t4_q41",
-        "t4_q42",
-        "t4_q43",
-        "t4_q44",
-    ]
-    req_list1 = [i[4:] for i in req_list]
+    req_list = [str(i) for i in range(46,60)]
+    # req_list1 = [i[4:] for i in req_list]
+    req_list1 = [i for i in req_list]
     df6_ans1 = df6_ans[df6_ans["question_id"].isin(req_list1)]
     # print(df6_ans1.head())
     # df6_ans1["student_ans"] = pd.to_numeric(df6_ans1.student_ans, errors="coerce")
@@ -137,25 +122,26 @@ async def generate_report(user_detail):
     emotion_score_df.fillna({"response": 0}, inplace=True)
     emotion_score_df.set_index("segment", inplace=True)
     emotion_score_dict = emotion_score_df.to_dict().get("response")
+    emotional_quotient = emotion_score_dict
 
-    emotional_quotient = {}
-    emotional_quotient["Conflict Management"] = emotion_score_dict.get(
-        "Conflict Management"
-    )
-    emotional_quotient["Emotional Regulation"] = emotion_score_dict.get(
-        "Emotional Regulation"
-    )
-    emotional_quotient["Emotional Self-Awareness"] = emotion_score_dict.get(
-        "Emotional Self-Awareness"
-    )
-    emotional_quotient["Emotional Self-Efficacy"] = emotion_score_dict.get(
-        "Emotional Self-Efficacy"
-    )
-    emotional_quotient["Empathy"] = emotion_score_dict.get("Empathy")
-    emotional_quotient["Motivation"] = emotion_score_dict.get("Motivation")
-    emotional_quotient["Pro Social Behavior"] = emotion_score_dict.get(
-        "Pro Social Behavior"
-    )
+    # emotional_quotient = {}
+    # emotional_quotient["Conflict Management"] = emotion_score_dict.get(
+    #     "Conflict Management"
+    # )
+    # emotional_quotient["Emotional Regulation"] = emotion_score_dict.get(
+    #     "Emotional Regulation"
+    # )
+    # emotional_quotient["Emotional Self-Awareness"] = emotion_score_dict.get(
+    #     "Emotional Self-Awareness"
+    # )
+    # emotional_quotient["Emotional Self-Efficacy"] = emotion_score_dict.get(
+    #     "Emotional Self-Efficacy"
+    # )
+    # emotional_quotient["Empathy"] = emotion_score_dict.get("Empathy")
+    # emotional_quotient["Motivation"] = emotion_score_dict.get("Motivation")
+    # emotional_quotient["Pro Social Behavior"] = emotion_score_dict.get(
+    #     "Pro Social Behavior"
+    # )
     #################### prompt ###################################
     pers_prompt = """
   # YOUR ROLE #

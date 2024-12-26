@@ -20,7 +20,7 @@ from app.db.redisClient import AsyncRedisClient
 
 # Routers
 from app.routers import auth, users, chatgpt, register
-from app.routers import quizrouts
+from app.routers import quizrouts, bookings
 from app.routers.settings import messages
 from fastapi.routing import APIRoute
 
@@ -112,7 +112,8 @@ app.include_router(auth.router, prefix=prefix_path, tags=["auth"])
 # and deleting user accounts. Access to these endpoints is secured with JWT tokens, ensuring
 # that only authenticated users can perform these operations.
 app.include_router(users.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["users"])
-app.include_router(quizrouts.router, prefix=prefix_path, tags=["Quizzes"])
+app.include_router(quizrouts.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["Quizzes"])
+app.include_router(bookings.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["bookings"])
 
 # ChatGPT Routes
 # Hosts endpoints for interacting with ChatGPT functionalities, including initiating conversations,

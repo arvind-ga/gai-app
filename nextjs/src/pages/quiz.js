@@ -1,7 +1,7 @@
 import React from "react";
 import useAuthenticatedRoute from "@/hooks/use-authenticated-route";
 import { Typography } from "@mui/material";
-import QuizPage from "@/sections/quizes/quiz-02";
+import QuizPage from "@/sections/quizzes/quiz-02";
 import { useRouter } from "next/router";
 
 function Quiz() {

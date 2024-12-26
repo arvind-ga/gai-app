@@ -13,6 +13,7 @@ from app.components.logger import logger
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from bs4 import BeautifulSoup
+from markdown import markdown
 
 
 # from eng_fn.parameter_mapping import *
@@ -432,20 +433,13 @@ def generate_pdf_report(
 
     ### Fifth Page - Career Recommendation
     content.append(Paragraph("Recommendation:", styles["Heading2"]))
-    # content.append(Paragraph("1. {}".format(career_option_list[0]), styles["Heading4"]))
-    # content.append(Paragraph("2. {}".format(career_option_list[1]), styles["Heading4"]))
-    # content.append(Paragraph("3. {}".format(career_option_list[2]), styles["Heading4"]))
-    # content.append(Paragraph("4. {}".format(career_option_list[3]), styles["Heading4"]))
-    # content.append(Paragraph("5. {}".format(career_option_list[4]), styles["Heading4"]))
-    # content.append(Paragraph("6. {}".format(career_option_list[5]), styles["Heading4"]))
-    # ###
-    # for i in career_option_list:
-    #     content.append(Paragraph("{}".format(i), styles["Heading5"]))
-    content.append(Paragraph("Stream  Recommendation:", styles["Heading3"]))
-    stream_option_list2 = BeautifulSoup(stream_option_list, 'html.parser')
-    stream_option_list3 = stream_option_list2.get_text(separator="\n", strip=True)
-    logger.info(f"career_option_list: {stream_option_list3}")
-    content.append(Paragraph("{}".format(stream_option_list3), styles["Heading5"]))
+    logger.info(f"student_class:::::::::::::::::::", student_class)
+    if student_class in ["9", "10"]:
+        content.append(Paragraph("Stream  Recommendation:", styles["Heading3"]))
+        stream_option_list2 = BeautifulSoup(stream_option_list, 'html.parser')
+        stream_option_list3 = stream_option_list2.get_text(separator="\n", strip=True)
+        logger.info(f"career_option_list: {stream_option_list3}")
+        content.append(Paragraph("{}".format(stream_option_list3), styles["Heading5"]))
     # content.append(get_divider())
     ##################################
     content.append(Paragraph("Career Option Recommendation:", styles["Heading3"]))
@@ -457,16 +451,7 @@ def generate_pdf_report(
 
     content.append(get_divider())
     content.append(Spacer(1, 12))
-
-    # content.append(Image("psychometry_chart.png", width=400, height=200))
-    # content.append(Spacer(1, 24))
-
-    # # Third Page - Interests
-    # content.append(Paragraph("Interest Breakdown", styles['Heading2']))
-    # content.append(Paragraph("This section shows the student’s interests in different areas such as Science, Arts, Sports, and Technology.", styles['BodyText']))
-    # content.append(Spacer(1, 12))
-    # content.append(Image("interest_chart.png", width=400, height=400))
-
+   
     # Build the PDF
     doc.build(content, onFirstPage=add_header_footer, onLaterPages=add_header_footer)
     # doc.build(content)
