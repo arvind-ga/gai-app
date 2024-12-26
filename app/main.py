@@ -23,6 +23,8 @@ from app.routers import auth, users, chatgpt, register
 from app.routers import quizrouts, bookings
 from app.routers.settings import messages
 from fastapi.routing import APIRoute
+# from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+
 
 app = FastAPI()
 for route in app.routes:
@@ -69,6 +71,7 @@ origins = ["*"]
 
 # Add CORS middleware to the application to handle Cross-Origin Resource Sharing (CORS),
 # allowing front-end applications from different origins to interact with the API safely.
+# app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(
     CORSMiddleware,  # type: ignore # The middleware class being added to handle CORS.
 
@@ -112,7 +115,7 @@ app.include_router(auth.router, prefix=prefix_path, tags=["auth"])
 # and deleting user accounts. Access to these endpoints is secured with JWT tokens, ensuring
 # that only authenticated users can perform these operations.
 app.include_router(users.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["users"])
-app.include_router(quizrouts.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["Quizzes"])
+app.include_router(quizrouts.router, prefix=prefix_path, tags=["Quizzes"])
 app.include_router(bookings.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["bookings"])
 
 # ChatGPT Routes

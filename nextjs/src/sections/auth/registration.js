@@ -24,27 +24,7 @@ export default function RegistrationModal({open, handleClose}) {
         password: '',
         confirmPassword: '',
     });
-    const [captcha, setCaptcha] = useState('');
-    const [userCaptchaInput, setUserCaptchaInput] = useState('');
 
-    useEffect(() => {
-        // Function to generate a simple captcha
-        const generateCaptcha = () => {
-            let result = '';
-            let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let charactersLength = characters.length;
-            for (let i = 0; i < 5; i++) {
-                result += characters.charAt(Math.floor(Math.random() * charactersLength));
-            }
-            return result;
-        };
-
-        setCaptcha(generateCaptcha());
-    }, []);
-
-    // const handleChange = (e) => {
-    //     setUserData({...userData, [e.target.name]: e.target.value});
-    // };
     const handleChange = (e) => {
         const { name, value } = e.target;
     
@@ -66,8 +46,6 @@ export default function RegistrationModal({open, handleClose}) {
             setUserData({ ...userData, [name]: value });
         }
     };
-    
-    
 
     const registrationMutation = useMutation(postRegister, {
         onSuccess: (data) => {
@@ -80,17 +58,58 @@ export default function RegistrationModal({open, handleClose}) {
         },
     });
 
+    // const handleRegister = () => {
+    //     if (userData.password !== userData.confirmPassword) {
+    //         toast.error('Passwords do not match!');
+    //         return;
+    //     }
+    //     console.log("userData:", userData)
+
+    //     registrationMutation.mutate(userData);
+    // };
+
+    const validatePassword = (password) => {
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        if (password.length < minLength) {
+            toast.error('Password must be at least 8 characters long!');
+            return false;
+        }
+        if (!hasUpperCase) {
+            toast.error('Password must contain at least one uppercase letter!');
+            return false;
+        }
+        if (!hasLowerCase) {
+            toast.error('Password must contain at least one lowercase letter!');
+            return false;
+        }
+        if (!hasNumber) {
+            toast.error('Password must contain at least one number!');
+            return false;
+        }
+        if (!hasSpecialChar) {
+            toast.error('Password must contain at least one special character!');
+            return false;
+        }
+        return true;
+    };
+
+    
     const handleRegister = () => {
         if (userData.password !== userData.confirmPassword) {
             toast.error('Passwords do not match!');
             return;
         }
-        {/*if (userCaptchaInput !== captcha) {
-            toast.error('Captcha does not match!');
-            // Consider regenerating captcha or handling this scenario appropriately
+
+        if (!validatePassword(userData.password)) {
             return;
-        }*/}
-        console.log("userData:", userData)
+        }
+
+        console.log("userData:", userData);
 
         registrationMutation.mutate(userData);
     };
@@ -147,7 +166,6 @@ export default function RegistrationModal({open, handleClose}) {
                         onChange={handleChange}
                         label="Standard" // Ensure this matches the InputLabel text
                     >
-                        <MenuItem value="8">8</MenuItem>
                         <MenuItem value="9">9</MenuItem>
                         <MenuItem value="10">10</MenuItem>
                         <MenuItem value="11">11</MenuItem>
@@ -181,20 +199,6 @@ export default function RegistrationModal({open, handleClose}) {
                     onChange={handleChange}
                     sx={{mb: 2}}
                 />
-                {/*<Typography variant="caption" display="block" gutterBottom>
-                    Captcha: {captcha}
-                </Typography>
-                <TextField
-                    margin="dense"
-                    id="userCaptchaInput"
-                    label="Enter Captcha"
-                    type="text"
-                    fullWidth
-                    variant="outlined"
-                    value={userCaptchaInput}
-                    onChange={(e) => setUserCaptchaInput(e.target.value)}
-                    sx={{mb: 2}}
-                />*/}
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} variant="outlined" color="inherit">Cancel</Button>

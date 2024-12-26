@@ -38,10 +38,10 @@ async def get_quiz(quiz_id: str, user_id: str):
         quiz_id_final = f"{quiz_id}_{user.get('standard')}_{stream_mapping.get(user.get('stream'), 'allsubj')}"
     else:
         quiz_id_final = quiz_id
-    logger.info(f"Quiz_final_id::", quiz_id_final)
+    logger.info(f"Quiz_final_id::{quiz_id_final}")
     quiz = await quiz_collection.find_one({"id": quiz_id_final})
-    logger.info(f"Quiz fetched, detail:", quiz)
-    logger.info(f"Quiz has been fetched successfully", jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]}))
+    logger.info(f"Quiz fetched, detail: {quiz}")
+    logger.info(f"Quiz has been fetched successfully: {jsonable_encoder({'id': quiz['id'], 'questions': quiz['questions']})}")
     if not quiz_id or not user_id:
         raise HTTPException(status_code=422, detail="Invalid query parameters")
     print("Quiz Details:::", jsonable_encoder({"id": quiz["id"], "questions": quiz["questions"]}))
@@ -71,6 +71,7 @@ async def save_quiz_response(response: QuizResponse):
     try:
         # Debugging: Log the incoming response
         print("Received response payload:", response.dict())
+        logger.info(f"Quiz to be submitted, detail: {response.dict()}")
         # Save user response in the database
         result = await quiz_response_collection.insert_one(response.dict())
         return {"message": "Responses saved successfully", "id": str(result.inserted_id)}

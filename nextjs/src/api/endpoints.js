@@ -198,7 +198,7 @@ export const checkQuizResponseExist = async (quiz_id, user_id, accessToken) => {
 // Submit quiz response
 export const submitQuizResponse = async (responseData, accessToken) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/save-quiz-response`, responseData, {
+        const response = await axios.post(`${API_BASE_URL}/save-quiz-response/`, responseData, {
             headers: { 'accept': 'application/json', 'api-key': accessToken }
         });
         return response.data;
