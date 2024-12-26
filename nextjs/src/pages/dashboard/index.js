@@ -129,7 +129,7 @@ const Dashboard = () => {
         {label: '1. Complete/Update Profile', value: 12},
         {label: '2. Tests & Report', value: 87},
         // {label: '3. Top Recommendation', value: 5},
-        {label: '4. Book Session with Expert', value: 5}];
+        {label: '3. Session Bookings', value: 5}];
 
     // Personality data
     const data = [
@@ -177,7 +177,7 @@ const Dashboard = () => {
                         onClick={() => {
                             if (index === 0) router.push('/user-profile');
                             else if (index === 1) router.push('/quiz-links');
-                            else if (index === 2) handleReportDownload();
+                            else if (index === 2) router.push('/bookings');
                         }}
                         sx={{
                             p: 2,

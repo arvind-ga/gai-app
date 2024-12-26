@@ -82,9 +82,7 @@ async def check_user_exists(email: str = Query(None), username: str = Query(None
 
     # Use the utility function to check if the user exists
     exists = await user_exists(email=email, username=username)
-
     return exists
-
 
 @router.post("/users/", response_model=User, dependencies=[Depends(check_permissions)])
 async def create_user(user: UserCreate, username: str = Depends(get_jwt_username)):

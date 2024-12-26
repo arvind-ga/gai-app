@@ -1,5 +1,6 @@
 import axios from "axios";
 import {jsonHeader, staticBearerHeader} from "@/api/headers";
+import dayjs from 'dayjs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -282,5 +283,50 @@ export const downloadReport = async (user_id, accessToken) => {
     } catch (error) {
         alert("Error while fetching the download link. Please try again.");
         console.error("Error in downloading report:", error);
+    }
+};
+
+// Fetching Booking
+export const fetchBooking = async (username, accessToken) => {
+    try {
+        if (!username) throw new Error("username is required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.get(`${API_BASE_URL}/fetch-booking/`, {
+            params: { username }, // Corrected query parameter name
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+        console.log("Got response from fetchBooking:", response)
+        // Extract and return the booking_list
+        // Extract and return the booking_list
+        const bookingList = response.data?.booking_list; // Corrected path
+        if (!Array.isArray(bookingList)) {
+            throw new Error("Invalid response structure from API.");
+        }
+        return bookingList;
+    } catch (error) {
+        console.error("Error fetching bookings:", error);
+        throw error;
+    }
+};
+
+// Session Booking
+export const SessionBooking = async (username, dateTime, remark, accessToken) => {
+    try {
+        console.log("Inside SessionBooking endpoint")
+        if (!username || !dateTime || !remark) throw new Error("All fields are required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.post(`${API_BASE_URL}/booking/`, {
+            username,
+            dateTime: dayjs(dateTime).toISOString(), // Ensure ISO format
+            remark,
+        }, {
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        throw error;
     }
 };
