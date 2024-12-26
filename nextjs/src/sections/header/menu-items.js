@@ -11,6 +11,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 
 const iconStyle = {height: 16, width: 16, mb: "-3px", mr: 0.5};
 
+
 export const menuItems = [
     {
         icon: <DashboardIcon sx={iconStyle}/>,
@@ -21,7 +22,7 @@ export const menuItems = [
     },
     {
     icon: <ChatGptIcon width={20} height={20} sx={iconStyle} />, // Using ChatGPT icon directly
-    label: "GakudoGPT",
+    label: "GoAIChat",
     tooltip: "AI Guide", // Updated tooltip to match functionality
     path: "/extensions/chatgpt", // Direct path to ChatGPT
     authenticated: true
@@ -42,7 +43,7 @@ export const menuItems = [
     },
     {
         icon: <LoginIcon sx={iconStyle}/>,
-        label: "Login",
+        label: "Login/Register",
         tooltip: "Login Page",
         path: "/login",
         authenticated: false
