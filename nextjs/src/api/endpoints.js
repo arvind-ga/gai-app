@@ -156,6 +156,24 @@ export const updateMessageSettings = async ({section, settings, accessToken}) =>
     return settings;
 };
 
+
+export const emailQuery = async (name, email, mobile, subject, body) => {
+    console.log("Query being sent:", name, email, mobile, subject, body);
+    try {
+        const response = await axios.post(`${API_BASE_URL}/query/`,
+            {}, // Empty body
+        {
+        params: { name, email, mobile, subject, body },
+            }
+        );
+        console.log("Query sent:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error while sending query mail", error);
+        throw error;
+    }
+};
+
 export const fetchQuiz = async (quiz_id, user_id, accessToken) => {
     try {
         const url = `${API_BASE_URL}/quiz/`;

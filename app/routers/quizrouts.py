@@ -2,8 +2,7 @@ import os
 import secrets
 from datetime import timedelta
 from bson import ObjectId
-from fastapi import status, Request, HTTPException, APIRouter
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import status, Request, HTTPException, APIRouter, Depends, Query
 from app.components.auth.jwt_token_handler import get_jwt_username
 from app.components.auth.check_permissions import check_permissions
 
