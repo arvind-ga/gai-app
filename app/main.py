@@ -20,7 +20,7 @@ from app.db.redisClient import AsyncRedisClient
 
 # Routers
 from app.routers import auth, users, chatgpt, register
-from app.routers import quizrouts, bookings, query_mail
+from app.routers import quizrouts, query_mail, bookings, rzp_pmt
 from app.routers.settings import messages
 from fastapi.routing import APIRoute
 # from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
@@ -117,6 +117,7 @@ app.include_router(auth.router, prefix=prefix_path, tags=["auth"])
 app.include_router(users.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["users"])
 app.include_router(quizrouts.router, prefix=prefix_path, tags=["Quizzes"])
 app.include_router(bookings.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["bookings"])
+app.include_router(rzp_pmt.router, prefix=prefix_path, dependencies=[Depends(get_jwt_secret_key)], tags=["payments"])
 app.include_router(query_mail.router, prefix=prefix_path, tags=["queries"])
 
 # ChatGPT Routes

@@ -1,0 +1,5 @@
+payment:
+  report: enable
+  chat: enable
+  session_booking: enable
+

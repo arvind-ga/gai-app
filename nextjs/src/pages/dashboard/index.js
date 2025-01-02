@@ -20,7 +20,7 @@ import ListItemText from '@mui/material/ListItemText';
 import LogoutButton from "@/sections/auth/logout";
 import { useAuth } from '@/api/auth/auth-context';
 import { usePopover } from '@/hooks/use-popover';
-import {CheckReportExist, downloadReport} from "@/api/endpoints";
+import {checkReportExist, downloadReport} from "@/api/endpoints";
 
 import {
     CartesianGrid,
@@ -111,7 +111,7 @@ const Dashboard = () => {
     const { userProfile, accessToken } = useAuth();
     const handleReportDownload = async () => {
       try {
-        const reportExists = await CheckReportExist(userProfile?.username, accessToken);
+        const reportExists = await checkReportExist(userProfile?.username, accessToken);
   
         if (reportExists) {
           await downloadReport(userProfile?.username, accessToken);

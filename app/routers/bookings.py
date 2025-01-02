@@ -43,8 +43,9 @@ async def book_session(request: BookingRequest):  # noqa
             "username": request.username,
             "date_time": request.dateTime,
             "remark": request.remark,
-            "status": "In Progress",
+            "status": "Payment Pending",
         }
+        
         logger.info(f"User {request.username} making booking for date: {request.dateTime} successfully.")
         result = await booking_collection.insert_one(booking_dict)
         return {"message": "Booking done successfully", "id": str(result.inserted_id)}

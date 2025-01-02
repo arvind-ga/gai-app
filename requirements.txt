@@ -29,3 +29,4 @@ reportlab~=4.2.5
 xml-python~=0.4.3
 beautifulsoup4~=4.12.3
 Markdown~=3.7
+razorpay~=1.4.2

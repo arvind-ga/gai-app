@@ -9,6 +9,7 @@ import { useAuth } from "@/api/auth/auth-context";
 import { fetchBooking, SessionBooking } from "@/api/endpoints";
 import { getProfile } from "@/api/endpoints";
 
+import {useRouter} from 'next/router';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -24,6 +25,7 @@ dayjs.extend(isBetween);
 const BookingPage = () => {
     const queryClient = useQueryClient();
     const { accessToken } = useAuth();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         username: '',
         dateTime: null,
@@ -50,14 +52,18 @@ const BookingPage = () => {
             toast.success('Booking created successfully!');
             queryClient.invalidateQueries(['bookings', formData.username]);
             setFormData({ ...formData, dateTime: null, remark: '' });
+            router.push('/checkout'); // Navigate only after success
         },
     });
 
     React.useEffect(() => {
         if (user?.username) {
             setFormData(prev => ({ ...prev, username: user.username }));
+        } else if (!accessToken) {
+            toast.error("Session expired. Please log in again.");
+            router.push('/login');
         }
-    }, [user]);
+    }, [user, accessToken]);
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -109,12 +115,13 @@ const BookingPage = () => {
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <Button type="submit" variant="contained" color="primary">Create Booking</Button>
+                            <Button type="submit" variant="contained" color="primary">Create Booking</Button>
                             </Grid>
                         </Grid>
                     </CardContent>
                 </Card>
 
+                {/* Section for previous bookings */}
                 {/* Section for previous bookings */}
                 <Card>
                     <CardContent>
@@ -134,13 +141,28 @@ const BookingPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {bookings.map((booking, index) => (
-                                                <TableRow key={booking.id}>
-                                                    <TableCell>{index + 1}</TableCell>
-                                                    <TableCell>{dayjs(booking.dateTime).format('LLL')}</TableCell>
-                                                    <TableCell>{booking.remark}</TableCell>
-                                                    <TableCell>{booking.status}</TableCell>
-                                                </TableRow>
+                                            {bookings
+                                                .slice()
+                                                .sort((a, b) => dayjs(b.dateTime).diff(dayjs(a.dateTime))) // Sort bookings by dateTime descending
+                                                .map((booking, index) => (
+                                                    <TableRow key={booking.id}>
+                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell>{dayjs(booking.dateTime).format('LLL')}</TableCell>
+                                                        <TableCell>{booking.remark}</TableCell>
+                                                        <TableCell>
+                                                            {booking.status === "Payment Pending" ? (
+                                                                <Button
+                                                                    variant="contained"
+                                                                    color="secondary"
+                                                                    onClick={() => router.push('/checkout')}
+                                                                >
+                                                                    Go to Checkout
+                                                                </Button>
+                                                            ) : (
+                                                                booking.status
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
                                             ))}
                                         </TableBody>
                                     </Table>
@@ -151,6 +173,7 @@ const BookingPage = () => {
                         )}
                     </CardContent>
                 </Card>
+
 
             </Stack>
         </LocalizationProvider>

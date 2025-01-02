@@ -348,3 +348,23 @@ export const SessionBooking = async (username, dateTime, remark, accessToken) =>
         throw error;
     }
 };
+
+// Making Payment
+export const CreateOrder = async (username, feature, amount, offer_id, accessToken) => {
+    try {
+        console.log("Inside CreateOrder endpoint")
+        console.log({ username, feature, amount, offer_id });
+        if (!username || !feature || !amount || !offer_id) throw new Error("All fields are required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.post(`${API_BASE_URL}/create-order/`, {
+            username, feature, amount, offer_id
+        }, {
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        throw error;
+    }
+};
