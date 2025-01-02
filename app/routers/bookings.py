@@ -36,11 +36,12 @@ async def book_session(username: str):  # noqa
 async def book_session(request: BookingRequest):  # noqa
     logger.info(f"Received booking request: {request}")
     try:
-        uuid1 = str(uuid.uuid4())
-        id1 = f"{request.username}_{uuid1}"
+        # uuid1 = str(uuid.uuid4())
+        # id1 = f"{request.username}_{uuid1}"
         booking_dict = {
-            "id": id1,
+            "id": request.bookingId,
             "username": request.username,
+            "booking_time": request.bookingTime,
             "date_time": request.dateTime,
             "remark": request.remark,
             "status": "Payment Pending",

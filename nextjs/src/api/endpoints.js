@@ -329,15 +329,20 @@ export const fetchBooking = async (username, accessToken) => {
 };
 
 // Session Booking
-export const SessionBooking = async (username, dateTime, remark, accessToken) => {
+export const SessionBooking = async (bookingId, username, dateTime, remark, accessToken) => {
     try {
         console.log("Inside SessionBooking endpoint")
         if (!username || !dateTime || !remark) throw new Error("All fields are required");
         if (!accessToken) throw new Error("Access token is required");
 
+        const bookingTime = dayjs().toISOString(); //dayjs().format('YYYY-MM-DD HH:mm:ss');
+        const formattedDateTime = dayjs(dateTime).toISOString() // Ensure ISO format
+
         const response = await axios.post(`${API_BASE_URL}/booking/`, {
+            bookingId,
             username,
-            dateTime: dayjs(dateTime).toISOString(), // Ensure ISO format
+            bookingTime,
+            dateTime: formattedDateTime,
             remark,
         }, {
             headers: { 'accept': 'application/json', 'api-key': accessToken },
@@ -350,15 +355,41 @@ export const SessionBooking = async (username, dateTime, remark, accessToken) =>
 };
 
 // Making Payment
-export const CreateOrder = async (username, feature, amount, offer_id, accessToken) => {
+export const CreateOrder = async (username, feature, accessToken) => {
     try {
         console.log("Inside CreateOrder endpoint")
-        console.log({ username, feature, amount, offer_id });
-        if (!username || !feature || !amount || !offer_id) throw new Error("All fields are required");
+        console.log("Sending payload:", { username, feature });
+        if (typeof amount !== "number") {
+            console.error("Amount should be an integer");
+        }
+        if (!username || !feature ) throw new Error("All fields are required");
         if (!accessToken) throw new Error("Access token is required");
 
         const response = await axios.post(`${API_BASE_URL}/create-order/`, {
-            username, feature, amount, offer_id
+            username, feature
+        }, {
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        throw error;
+    }
+};
+
+// Making Payment
+export const CompletePayment = async (username, feature, session_id, act_amount, disc_amount, razorpay_order_id, razorpay_payment_id, razorpay_signature, accessToken) => {
+    try {
+        console.log("Inside CompletePayment endpoint")
+        console.log("Sending payload:", { username, feature, session_id, act_amount, disc_amount, razorpay_order_id, razorpay_payment_id, razorpay_signature});
+        // if (typeof amount !== "number") {
+        //     console.error("Amount should be an integer");
+        // }
+        if (!username || !feature || !act_amount || !disc_amount) throw new Error("All fields are required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.post(`${API_BASE_URL}/post-rzp-pmt/`, {
+            username, feature, session_id, act_amount, disc_amount, razorpay_order_id, razorpay_payment_id, razorpay_signature
         }, {
             headers: { 'accept': 'application/json', 'api-key': accessToken },
         });

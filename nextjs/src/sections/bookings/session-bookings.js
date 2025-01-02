@@ -15,6 +15,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import isBetween from 'dayjs/plugin/isBetween';
+import { v4 as uuidv4 } from 'uuid';
 
 // Extend dayjs with plugins
 dayjs.extend(customParseFormat);
@@ -23,6 +24,7 @@ dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
 
 const BookingPage = () => {
+    const generateBookingId = (username) => {return `${username}_${uuidv4()}`;};
     const queryClient = useQueryClient();
     const { accessToken } = useAuth();
     const router = useRouter();
@@ -47,12 +49,14 @@ const BookingPage = () => {
     );
 
     // Mutation for creating a new booking
-    const bookingMutation = useMutation(newBooking => SessionBooking(newBooking.username, newBooking.dateTime, newBooking.remark, accessToken), {
+    const booking_id = generateBookingId(user?.username);
+
+    const bookingMutation = useMutation(newBooking => SessionBooking(booking_id, newBooking.username, newBooking.dateTime, newBooking.remark, accessToken), {
         onSuccess: () => {
             toast.success('Booking created successfully!');
             queryClient.invalidateQueries(['bookings', formData.username]);
             setFormData({ ...formData, dateTime: null, remark: '' });
-            router.push('/checkout'); // Navigate only after success
+            router.push(`/checkout?session_booking_id=${booking_id}`); // Navigate only after success
         },
     });
 
@@ -141,10 +145,7 @@ const BookingPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {bookings
-                                                .slice()
-                                                .sort((a, b) => dayjs(b.dateTime).diff(dayjs(a.dateTime))) // Sort bookings by dateTime descending
-                                                .map((booking, index) => (
+                                            {bookings.map((booking, index) => (
                                                     <TableRow key={booking.id}>
                                                         <TableCell>{index + 1}</TableCell>
                                                         <TableCell>{dayjs(booking.dateTime).format('LLL')}</TableCell>
@@ -153,10 +154,30 @@ const BookingPage = () => {
                                                             {booking.status === "Payment Pending" ? (
                                                                 <Button
                                                                     variant="contained"
-                                                                    color="secondary"
-                                                                    onClick={() => router.push('/checkout')}
+                                                                    onClick={() => router.push(`/checkout?session_booking_id=${booking.id}`)}
+                                                                    sx={{
+                                                                        backgroundColor: 'lightcoral', // Light red color
+                                                                        color: '#fff', // White text
+                                                                        '&:hover': {
+                                                                            backgroundColor: 'indianred', // Slightly darker red on hover
+                                                                        },
+                                                                    }}
                                                                 >
-                                                                    Go to Checkout
+                                                                    Make Payment
+                                                                </Button>
+                                                            ) : booking.status === "Confirm" ? (
+                                                                <Button
+                                                                    variant="contained"
+                                                                    disabled // Make the button unclickable
+                                                                    sx={{
+                                                                        backgroundColor: 'lightgreen', // Light green color
+                                                                        color: '#fff', // White text
+                                                                        '&:hover': {
+                                                                            backgroundColor: 'lightgreen', // Maintain same color on hover
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    Confirmed
                                                                 </Button>
                                                             ) : (
                                                                 booking.status

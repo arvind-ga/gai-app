@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { deepPurple, green, red } from '@mui/material/colors';
 import Avatar from '@mui/material/Avatar';
-import { CreateOrder } from '@/api/endpoints';
+import { CreateOrder, CompletePayment } from '@/api/endpoints';
 import Loading from '@/components/loading';
 import { useAuth } from '@/api/auth/auth-context';
 import { getProfile } from "@/api/endpoints";
@@ -43,6 +43,8 @@ export async function loadRazorpayScript(src) {
 
 
 const CheckoutPage = () => {
+    const { query } = useRouter();
+    const sessionBookingId = query.session_booking_id;
     const { accessToken } = useAuth();
     console.log('Access Token in CheckoutPage:', accessToken);
     const { data: user, isLoading } = useQuery('userProfile', () => getProfile(accessToken), {
@@ -84,22 +86,23 @@ const CheckoutPage = () => {
                 e.preventDefault(); // Prevent any default action, like redirect
             
                 console.log('Payment button clicked');
-                const feature = "Session Booking"
-                const amount = 1199 * 100
-                const offer_id = "offer_PeGBYGqWZX2ocG"
-                const response = await CreateOrder(user?.username, feature, amount, offer_id, accessToken)
-            
+                const feature = "session"
+                const session_id = sessionBookingId //"GAI_session_id_check2"
+                const response = await CreateOrder(user?.username, feature, accessToken)
+                const amount = response.amount
+                const amount_due = response.amount_due
+                console.log("Response1", response)
                 const options = {
                     key: response.rzp_id, // Replace with your Razorpay key
-                    amount: amount, // The amount in smallest currency unit (e.g., 100 for ₹1.00)
+                    // amount: amount, // The amount in smallest currency unit (e.g., 100 for ₹1.00)
                     currency: 'INR',
                     name: 'GakudoAI',
                     description: 'Test Transaction',
                     image: companyLogoBase64, //'https://your-logo-url.com/logo.png', // Optional: Add your logo URL
                     order_id: response.order_id, // Optional: Pass an order_id generated on your server
                     handler: function (response) {
-                        console.log('Payment successful:', response);
-                        // Handle successful payment here
+                        console.log('Payment successful: response2', response);
+                        CompletePayment(user?.username, feature, session_id, amount, amount_due, response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature, accessToken)
                     },
                     prefill: {
                         name: user?.name || 'Test User',
@@ -136,11 +139,61 @@ const CheckoutPage = () => {
         initializeRazorpay();
     }, [user, accessToken, isLoading]);
 
-    return (    
-        <div>
-            <h1>Checkout</h1>
-            <button id="rzp-button1">Pay Now</button>
-        </div>
+    return (
+        <Container component="main" maxWidth="sm">
+            <Box
+                sx={{
+                    marginTop: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    backgroundColor: '#ffffff', // Light background
+                    padding: '40px',
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                }}
+            >
+                <Typography component="h1" variant="h5" style={{ color: '#333', marginBottom: '20px' }}>
+                    GakudoAI Payment Page
+                </Typography>
+    
+                {/* Displaying the details */}
+                {user && (
+                    <Box sx={{ width: '100%', marginBottom: '20px' }}>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                            Username: <span style={{ fontWeight: 'normal' }}>{user.username}</span>
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                            Feature: <span style={{ fontWeight: 'normal' }}>Session Booking</span>
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                            Amount: <span style={{ fontWeight: 'normal' }}>₹{(11).toFixed(2)}</span>
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', marginBottom: '16px' }}>
+                            Discounted Amount: <span style={{ fontWeight: 'normal' }}>₹{(11 - (12 * 0.5)).toFixed(2)}</span>
+                        </Typography>
+                    </Box>
+                )}
+    
+                <Button
+                    id="rzp-button1"
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                        width: '100%',
+                        padding: '12px 0',
+                        backgroundColor: '#1976d2',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                            backgroundColor: '#1565c0',
+                        },
+                    }}
+                >
+                    Pay Now
+                </Button>
+            </Box>
+        </Container>
     );
 };
 

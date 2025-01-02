@@ -19,6 +19,8 @@ RUN npm install
 RUN npm install @mui/material@latest @mui/icons-material@latest
 RUN npm install @mui/x-date-pickers
 RUN npm install dayjs
+RUN npm install uuid
+
 
 # If you're building a static site or need to run a build script
 # RUN npx next build --clean
