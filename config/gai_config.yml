@@ -3,3 +3,5 @@ payment:
   chat: enable
   session_booking: enable
 
+free_limit:
+  chat_query_count: 5

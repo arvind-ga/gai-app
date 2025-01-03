@@ -50,13 +50,14 @@ const BookingPage = () => {
 
     // Mutation for creating a new booking
     const booking_id = generateBookingId(user?.username);
+    const feature = "session"
 
     const bookingMutation = useMutation(newBooking => SessionBooking(booking_id, newBooking.username, newBooking.dateTime, newBooking.remark, accessToken), {
         onSuccess: () => {
             toast.success('Booking created successfully!');
             queryClient.invalidateQueries(['bookings', formData.username]);
             setFormData({ ...formData, dateTime: null, remark: '' });
-            router.push(`/checkout?session_booking_id=${booking_id}`); // Navigate only after success
+            router.push(`/checkout?session_booking_id=${booking_id}&feature=${feature}`); // Navigate only after success
         },
     });
 
@@ -154,7 +155,7 @@ const BookingPage = () => {
                                                             {booking.status === "Payment Pending" ? (
                                                                 <Button
                                                                     variant="contained"
-                                                                    onClick={() => router.push(`/checkout?session_booking_id=${booking.id}`)}
+                                                                    onClick={() => router.push(`/checkout?session_booking_id=${booking.id}&feature=${feature}`)}
                                                                     sx={{
                                                                         backgroundColor: 'lightcoral', // Light red color
                                                                         color: '#fff', // White text

@@ -1,4 +1,6 @@
 from typing import List
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -17,15 +19,17 @@ import os
 from aiosmtplib import SMTP, SMTPException
 from bson import ObjectId
 from fastapi import UploadFile, HTTPException
-
 from app.db.mongoClient import async_mdb_client, async_database
-
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.components.logger import logger
 from pydantic import BaseModel
-
 import razorpay
+import yaml
+from bson import ObjectId 
+
+with open("./config/gai_config.yml", "r") as f:
+    config = yaml.load(f, Loader=yaml.SafeLoader)
 
 load_dotenv()  # loading environment variables
 router = APIRouter()  # router instance
@@ -64,6 +68,16 @@ class UpdateTxnStatus(BaseModel):
     razorpay_payment_id: str = "pay_PeY8FteUwlwwfI"
     razorpay_signature: str = "4cf3104a1fca632af366fb2b0ec85633bc58ea77a2dac6e4b5e988976cd337af"
 
+def convert_objectid_to_str(obj):
+    """Recursively convert ObjectId to string in all nested dicts"""
+    if isinstance(obj, dict):
+        return {key: convert_objectid_to_str(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_objectid_to_str(item) for item in obj]
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    return obj
+
 @router.post("/create-order/", dependencies=[Depends(check_permissions)])
 async def create_order(order: CreateOrderRequest):
     try:
@@ -78,13 +92,13 @@ async def create_order(order: CreateOrderRequest):
                 "username": order.username
             }
         }
-        logger.info(f"Error while uploading report: {str(DATA)}")
+        logger.info(f"Error while creating razorpay order: {str(DATA)}")
         response = client.order.create(data=DATA)
         response = client.order.create(data=DATA)
         response1 = {"username": order.username, "rzp_id": RZP_ID, "order_id": response.get("id"), "amount": response.get("amount"), "amount_due": response.get("amount_due")}
         return response1
     except Exception as e:
-        logger.error(f"Error while uploading report: {str(e)}")
+        logger.error(f"Error while creating razorpay order: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.post("/post-rzp-pmt/", dependencies=[Depends(check_permissions)])
@@ -145,5 +159,31 @@ async def update_pmt_status(order_details: UpdateTxnStatus):
         logger.error(f"Validation Error: {str(ve)}")
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        logger.error(f"Error while uploading report: {str(e)}")
+        logger.error(f"Error while making payment: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@router.get("/user-payment-status/", dependencies=[Depends(check_permissions)])
+async def get_payment_status(username: str):
+    try:
+        # Query the payment status from the database
+        result = await user_txn_collection.find_one({"id": username})
+        # Check if the result is None (user not found or no payment data)
+        if not result:
+            return JSONResponse(content={"message": "Payment status not found", "isPaymentDone": False}, status_code=404)
+        # Ensure the result is serializable
+        out = {"username": result["id"], "report_pmt_status": result["report_pmt_status"], 
+        "chat_pmt_status": result["chat_pmt_status"], "session_pmt_status": result["session_pmt_status"]}
+
+        logger.info(f"result: {str(out)}")
+        return JSONResponse(content=jsonable_encoder(out), status_code=200)
+    except Exception as e:
+        logger.error(f"Error while fetching payment status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@router.get("/feature-charges-config/", dependencies=[Depends(check_permissions)])
+async def get_feature_charges_config(username: str):
+    try:
+        return config.get("feature_charge_config")
+    except Exception as e:
+        logger.error(f"Error while fetching payment status: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

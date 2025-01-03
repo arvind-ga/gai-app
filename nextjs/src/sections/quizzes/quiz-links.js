@@ -3,7 +3,7 @@ import { Box, Typography, Button, Container, Snackbar, Alert } from '@mui/materi
 import { useRouter } from 'next/router';
 import { useAuth } from '@/api/auth/auth-context';
 import { checkQuizResponseExist, GenerateReport, downloadReport } from '@/api/endpoints';
-import { checkReportExist } from '@/api/endpoints';
+import { checkReportExist, GetPmtStatus } from '@/api/endpoints';
 import toast from 'react-hot-toast';
 
 export default function QuizLinks() {
@@ -115,6 +115,24 @@ export default function QuizLinks() {
         }
     };
 
+    const handleDownloadReport = async () => {
+        try {
+            const paymentStatus = await GetPmtStatus(userProfile?.username, accessToken);
+            if (paymentStatus?.report_pmt_status) {
+                await downloadReport(userProfile?.username, accessToken);
+                toast.success("Report downloaded successfully.");
+            } else {
+                const session_booking_id= ""
+                const feature = "report"
+                toast.error("Payment required to download the report. Redirecting...");
+                router.push(`/checkout?session_booking_id=${session_booking_id}&feature=${feature}`);
+            }
+        } catch (error) {
+            toast.error("Failed to verify payment status. Please try again.");
+            console.error("Error checking payment status:", error);
+        }
+    };
+
     return (
         <Container maxWidth="sm" sx={{ textAlign: 'center', marginTop: 5 }}>
             <Typography variant="h4" component="h1" gutterBottom>
@@ -156,15 +174,15 @@ export default function QuizLinks() {
                     sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}
                 >
                     {reportGenerating ? 'Generating Report...' : 'Generate Report'}
-                </Button>
-                {reportExists && (
-                    <Button
-                        onClick={() => downloadReport(userProfile?.username, accessToken)}
-                        variant="outlined"
-                        color="success"
-                        sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}
-                    >
-                        Download Report
+                    </Button>
+                        {reportExists && (
+                            <Button
+                                onClick={handleDownloadReport}
+                                variant="outlined"
+                                color="success"
+                                sx={{ textTransform: 'none', padding: '10px', marginTop: 2 }}
+                            >
+                                Download Report
                     </Button>
                 )}
             </Box>

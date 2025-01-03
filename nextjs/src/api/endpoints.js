@@ -212,7 +212,6 @@ export const checkQuizResponseExist = async (quiz_id, user_id, accessToken) => {
     }
 };
 
-
 // Submit quiz response
 export const submitQuizResponse = async (responseData, accessToken) => {
     try {
@@ -354,14 +353,11 @@ export const SessionBooking = async (bookingId, username, dateTime, remark, acce
     }
 };
 
-// Making Payment
+// Creating razorpay Order
 export const CreateOrder = async (username, feature, accessToken) => {
     try {
         console.log("Inside CreateOrder endpoint")
         console.log("Sending payload:", { username, feature });
-        if (typeof amount !== "number") {
-            console.error("Amount should be an integer");
-        }
         if (!username || !feature ) throw new Error("All fields are required");
         if (!accessToken) throw new Error("Access token is required");
 
@@ -397,5 +393,23 @@ export const CompletePayment = async (username, feature, session_id, act_amount,
     } catch (error) {
         console.error("Error creating booking:", error);
         throw error;
+    }
+};
+
+export const GetPmtStatus = async (username, accessToken) => {
+    try {
+        console.log("Inside GetPmtStatus endpoint");
+        if (!username) throw new Error("Username is required");
+        if (!accessToken) throw new Error("Access token is required");
+
+        const response = await axios.get(`${API_BASE_URL}/user-payment-status/`, {
+            params: { username },
+            headers: { 'accept': 'application/json', 'api-key': accessToken },
+        });
+
+        return response.data; // Make sure to return response data
+    } catch (error) {
+        console.error("Error fetching user payment status:", error);
+        throw error; // Handle error gracefully
     }
 };

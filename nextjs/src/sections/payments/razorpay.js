@@ -44,6 +44,8 @@ export async function loadRazorpayScript(src) {
 
 const CheckoutPage = () => {
     const { query } = useRouter();
+    const router = useRouter()
+    const feature = query.feature;
     const sessionBookingId = query.session_booking_id;
     const { accessToken } = useAuth();
     console.log('Access Token in CheckoutPage:', accessToken);
@@ -53,22 +55,32 @@ const CheckoutPage = () => {
 
     useEffect(() => {
         if (!accessToken) {
-            console.error("Access token is missing. Ensure user is logged in.");
+            console.error('Access token is missing');
             return;
         }
+        if (isLoading) {
+            console.log('User data is still loading');
+            return;
+        }
+        if (!user) {
+            console.error('User data not available');
+            return;
+        }
+
         const initializeRazorpay = async () => {
-            console.log('Inside initializeRazorpay function');
+            console.log('Initializing Razorpay...');
             const isLoaded = await loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js');
             if (!isLoaded) {
                 console.error('Failed to load Razorpay SDK');
                 return;
             }
 
-            if (typeof Razorpay === 'undefined') {
-                console.error('Razorpay object not available');
+            if (typeof window.Razorpay === 'undefined') {
+                console.error('Razorpay object not available after loading script');
                 return;
             }
 
+            console.log('Razorpay SDK is ready');
             if (!isLoading && user) {
                 setupPaymentButton(user, accessToken);
             }
@@ -86,7 +98,6 @@ const CheckoutPage = () => {
                 e.preventDefault(); // Prevent any default action, like redirect
             
                 console.log('Payment button clicked');
-                const feature = "session"
                 const session_id = sessionBookingId //"GAI_session_id_check2"
                 const response = await CreateOrder(user?.username, feature, accessToken)
                 const amount = response.amount
@@ -103,6 +114,15 @@ const CheckoutPage = () => {
                     handler: function (response) {
                         console.log('Payment successful: response2', response);
                         CompletePayment(user?.username, feature, session_id, amount, amount_due, response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature, accessToken)
+                        if (feature === 'report') {
+                            router.push('/quiz-links');  // Redirect to session booking success page
+                        } else if (feature === 'chat') {
+                            router.push('/extensions/chatgpt');  // Redirect to another feature success page
+                        } else if (feature === 'session') {
+                            router.push('/bookings');  // Redirect to another feature success page
+                        } else {
+                            router.push('/dashboard');  // Default success page
+                        } 
                     },
                     prefill: {
                         name: user?.name || 'Test User',

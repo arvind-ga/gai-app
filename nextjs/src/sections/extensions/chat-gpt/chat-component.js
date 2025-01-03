@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {useAuth} from '@/api/auth/auth-context';
+import {useRouter} from 'next/router';
 import {fetchChatResponse} from "@/api/endpoints";
 
 const saveChatsToCache = (chats) => {
@@ -42,6 +43,8 @@ const ChatComponent = () => {
     const [model, setModel] = useState('gpt-4');
     const [isTyping, setIsTyping] = useState(false);
     const bottomRef = useRef(null);
+    const [isLimitExceeded, setIsLimitExceeded] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({behavior: "smooth"});
@@ -52,31 +55,33 @@ const ChatComponent = () => {
     }, [chats]);
 
     const handleSendMessage = async () => {
-        if (!message.trim()) return;
+        if (!message.trim() || isLimitExceeded) return;
 
-        // Check if there are no open tabs/conversations and open a new one if needed
         if (chats.length === 0) {
-            handleNewConversation(); // This creates a new conversation
-            await new Promise(resolve => setTimeout(resolve, 0)); // Allow state to update
+            handleNewConversation();
+            await new Promise(resolve => setTimeout(resolve, 0));
         }
 
         const username = userProfile?.username;
         const response = await fetchChatResponse(message, accessToken, model, username);
-        // const response = await fetchChatResponse(message, accessToken, model, username);
 
-        // Initialize with empty answer in the appropriate conversation
-        // This might not be necessary if you're updating the chat in the interval below
-        // But included here to ensure there's an initial state to update
+        if (response.isLimitExceeded === true) {
+            setIsLimitExceeded(true);
+            return;
+        }
+
+        console.log('Response:', response);
+        console.log('isLimitExceeded:', isLimitExceeded);
         setChats(currentChats => {
             const updatedChats = [...currentChats];
-            if (!updatedChats[activeTab]) { // Ensure there's a tab to update
-                updatedChats.push({history: [], model});
+            if (!updatedChats[activeTab]) {
+                updatedChats.push({ history: [], model });
             }
-            updatedChats[activeTab].history.push({question: message, answer: ""});
+            updatedChats[activeTab].history.push({ question: message, answer: "" });
             return updatedChats;
         });
 
-        setIsTyping(true); // Begin typing effect
+        setIsTyping(true);
 
         let typedResponse = "";
         const fullResponse = response.message;
@@ -85,7 +90,6 @@ const ChatComponent = () => {
         const typingInterval = setInterval(() => {
             if (index < fullResponse.length) {
                 typedResponse += fullResponse.charAt(index++);
-                // Update the last message's answer in the chat history with typedResponse
                 setChats(currentChats => {
                     const updatedChats = [...currentChats];
                     const lastMessageIndex = updatedChats[activeTab].history.length - 1;
@@ -94,9 +98,9 @@ const ChatComponent = () => {
                 });
             } else {
                 clearInterval(typingInterval);
-                setIsTyping(false); // Stop typing effect after the last character
+                setIsTyping(false);
             }
-        }, 10); // Adjust typing speed if necessary
+        }, 25);
 
         setMessage('');
     };
@@ -112,6 +116,12 @@ const ChatComponent = () => {
         setModel(event.target.value);
     };
 
+    const handleRedirectToPayment = () => {
+        const bookingId = ""; // blank in case of chat and report
+        const feature = "chat"; // payment for feature
+        router.push(`/checkout?session_booking_id=${bookingId}&feature=${feature}`);
+    };
+
     const handleDeleteChat = (index) => {
         setChats(currentChats => currentChats.filter((_, idx) => idx !== index));
         if (index === activeTab || index < activeTab) {
@@ -123,24 +133,24 @@ const ChatComponent = () => {
         <>
             <AppBar position="static">
                 <Toolbar>
-                    <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Chat Interface
                     </Typography>
-                    <Button variant="contained" color="inherit" onClick={handleNewConversation} sx={{ml: 3}}>New
-                        Conversation</Button>
-
+                    <Button variant="contained" color="inherit" onClick={handleNewConversation} sx={{ ml: 3 }}>
+                        New Conversation
+                    </Button>
                 </Toolbar>
             </AppBar>
             <Grid container spacing={2}>
                 <Grid item xs={3}>
-                    <Card sx={{mt: 1, height: '70vh', overflow: 'auto'}}>
+                    <Card sx={{ mt: 1, height: '70vh', overflow: 'auto' }}>
                         <Tabs
                             orientation="vertical"
                             variant="scrollable"
                             value={activeTab}
                             onChange={(event, newValue) => setActiveTab(newValue)}
                             aria-label="Chat tabs"
-                            sx={{borderRight: 1, borderColor: 'divider'}}
+                            sx={{ borderRight: 1, borderColor: 'divider' }}
                         >
                             {chats.map((chat, index) => (
                                 <Tab
@@ -148,7 +158,7 @@ const ChatComponent = () => {
                                     key={index}
                                     icon={
                                         <IconButton onClick={() => handleDeleteChat(index)} size="small">
-                                            <CloseIcon fontSize="inherit"/>
+                                            <CloseIcon fontSize="inherit" />
                                         </IconButton>
                                     }
                                     iconPosition="end"
@@ -158,18 +168,17 @@ const ChatComponent = () => {
                     </Card>
                 </Grid>
                 <Grid item xs={9}>
-                    <Card sx={{mt: 1, height: '70vh', display: 'flex', flexDirection: 'column'}}>
-                        <List sx={{overflow: 'auto', flexGrow: 1}}>
+                    <Card sx={{ mt: 1, height: '70vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                        <List sx={{ overflow: 'auto', flexGrow: 1 }}>
                             {chats[activeTab]?.history.map((entry, index) => (
                                 <ListItem key={index}>
-                                    <ListItemText primary={`You: ${entry.question}`}
-                                                  secondary={`GakudoGPT: ${entry.answer}`}/>
+                                    <ListItemText primary={`You: ${entry.question}`} secondary={`GakudoGPT: ${entry.answer}`} />
                                 </ListItem>
                             ))}
-                            {isTyping && <CircularProgress sx={{alignSelf: 'center', m: 1}}/>}
-                            <div ref={bottomRef}/>
+                            {isTyping && <CircularProgress sx={{ alignSelf: 'center', m: 1 }} />}
+                            <div ref={bottomRef} />
                         </List>
-                        <Box sx={{display: 'flex', p: 1}}>
+                        <Box sx={{ display: 'flex', p: 1 }}>
                             <TextField
                                 fullWidth
                                 label="Your question"
@@ -178,12 +187,50 @@ const ChatComponent = () => {
                                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                                 variant="outlined"
                                 margin="normal"
+                                disabled={isLimitExceeded}
                             />
-                            <Button onClick={handleSendMessage} variant="contained" color="primary"
-                                    sx={{mt: 2, mb: 1, ml: 1}}>
+                            <Button
+                                onClick={handleSendMessage}
+                                variant="contained"
+                                color="primary"
+                                sx={{ mt: 2, mb: 1, ml: 1 }}
+                                disabled={isLimitExceeded}
+                            >
                                 Send
                             </Button>
                         </Box>
+                        {isLimitExceeded && (
+                            <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              flexDirection: 'column',
+                              zIndex: 10,
+                              pointerEvents: 'none', // Prevent interaction with elements beneath
+                            }}
+                          >
+                            <Typography variant="body1" sx={{ color: 'white', mb: 1 }}>
+                              Free limit exceeded. Upgrade to continue.
+                            </Typography>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={handleRedirectToPayment}
+                              sx={{
+                                pointerEvents: 'auto', // Enable interaction with the button
+                              }}
+                            >
+                              Go to Payment
+                            </Button>
+                          </Box>                                                                          
+                        )}
                     </Card>
                 </Grid>
             </Grid>
