@@ -100,19 +100,25 @@ export const forgotPassword = async (email) => {
     try {
         const response = await axios.post(
             `${API_BASE_URL}/users/forgot-password/`,
-            {}, // No body data
+            null, // No request body needed
             {
-                params: { email }, // Query parameter
-                headers: staticBearerHeader, // Ensure this header is correctly defined
+                params: { email }, // Pass email as a query parameter
+                headers: staticBearerHeader, // Ensure this is correctly defined
             }
         );
-        console.log("Response:", response);
+        console.log("Response:", response.data);
+        return response.data; // Return data for further use if needed
     } catch (error) {
-        console.error("Error:", error);
-        console.error("Error Response:", error.response); // Check the response details
-        console.error("Error Request:", error.request);   // Check the raw request
+        console.error("Error:", error.message);
+        if (error.response) {
+            console.error("Error Response:", error.response.data);
+        } else if (error.request) {
+            console.error("Error Request:", error.request);
+        }
+        throw error; // Rethrow the error for upstream handling
     }
 };
+
 
 
 export const postResetPassword = async ({token, newPassword}) => {
